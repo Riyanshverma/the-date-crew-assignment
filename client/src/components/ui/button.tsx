@@ -12,9 +12,15 @@ const buttonVariants = cva(
         default: "bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)]",
         outline: "border border-[var(--border-strong)] bg-[var(--surface)] text-[var(--ink)] hover:bg-[var(--surface-soft)]",
         ghost: "text-[var(--body)] hover:bg-[var(--surface-soft)]"
+      },
+      size: {
+        default: "h-10 px-4 text-[13px]",
+        sm: "h-8 px-3 text-xs",
+        lg: "h-11 px-6 text-sm",
+        icon: "h-9 w-9 p-0"
       }
     },
-    defaultVariants: { variant: "default" }
+    defaultVariants: { variant: "default", size: "default" }
   }
 );
 

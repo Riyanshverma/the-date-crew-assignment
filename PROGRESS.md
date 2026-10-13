@@ -1,26 +1,37 @@
 # Progress
 
 ## Current stage
-Phase 1 (Foundation and runtime) completed. Frontend and server runtime baselines are operational and pass TypeScript checks.
+Phase 2 (Visual shell and frontend demo login) completed on branch `phase-2-visual-shell-demo-login`.
 
-## Phase 1 Execution Summary
+## Phase 2 Execution Summary
 - **Work completed:**
-  - Initialized Git repository and recorded initial baseline commit.
-  - Created `server/src/routes/api.ts` implementing Express `apiRouter` and `apiErrorHandler`, resolving the missing module error in `server/src/app.ts`.
-  - Renamed `dummy-data.json` to `tdc_matchmaker_dummy_data.json` to match documentation and project configuration.
-  - Verified TypeScript compilation for both `tsconfig.client.json` and `tsconfig.server.json`.
-  - Verified Express application starts and `GET /api/health` returns `{ "service": "tdc-matchmaker-api", "status": "ok" }`.
-  - Verified `npm run build` executes cleanly.
+  - Configured complete design tokens and Tailwind v4 `@theme` in `client/src/styles.css` matching `design.md`.
+  - Added button size variants (`default`, `sm`, `lg`, `icon`) to `client/src/components/ui/button.tsx`.
+  - Created frontend-only demo credentials constant in `client/src/features/auth/demo-credentials.ts` with accounts for Aarav Mehta (`demo-matchmaker-1`) and Mira Kapoor (`demo-matchmaker-2`).
+  - Implemented `AuthContext`, `AuthProvider`, `useAuth`, and route guards (`RequireAuth`, `RedirectIfAuth`) with session storage. No backend authentication endpoints were created.
+  - Built `LoginPage` with credential inputs, error alert on invalid inputs, and one-click demo login buttons.
+  - Built responsive `AppShell` with top header, 248px desktop sidebar, mobile drawer overlay (<640px), navigation links (`/dashboard`, `/customers`), active demo account indicator, and account switcher popover.
+  - Built `StatusBadge` supporting `ProfileStatus` (`ACTIVE`, `INCOMPLETE`) and all 11 pairing `MatchStatus` values with accessible text labels and icons.
+  - Created reusable `LoadingState`, `EmptyState`, and `ErrorState` components.
+  - Built `DashboardPage` and `CustomersPage` visual shells with operational metrics, readiness/status filters, and preview queue.
 - **Files changed:**
-  - `server/src/routes/api.ts` (created)
-  - `tdc_matchmaker_dummy_data.json` (renamed from `dummy-data.json`)
+  - `client/src/styles.css` (modified: added `@theme` design tokens)
+  - `client/src/components/ui/button.tsx` (modified: added size variants)
+  - `client/src/features/auth/demo-credentials.ts` (created)
+  - `client/src/features/auth/AuthContext.tsx` (created)
+  - `client/src/features/auth/AuthGuard.tsx` (created)
+  - `client/src/features/auth/LoginPage.tsx` (created)
+  - `client/src/components/common/StatusBadge.tsx` (created)
+  - `client/src/components/common/FeedbackStates.tsx` (created)
+  - `client/src/components/layout/AppShell.tsx` (created)
+  - `client/src/features/dashboard/DashboardPage.tsx` (created)
+  - `client/src/features/customers/CustomersPage.tsx` (created)
+  - `client/src/App.tsx` (modified: wired routes and auth provider)
   - `PROGRESS.md` (updated)
 - **Commands / checks run:**
   - `npm run typecheck` — Passed (exit code 0 for client and server).
-  - Health check test via ephemeral server — Passed (HTTP 200, `{ service: 'tdc-matchmaker-api', status: 'ok' }`).
-  - `npm run build` — Passed (typecheck + vite build succeeded in 600ms).
-- **Failures / blockers:** None.
-- **Next Phase:** Phase 2 — Visual shell and frontend demo login.
+  - `npm run build` — Passed (typecheck + vite build succeeded in 1.27s).
+- **Next Phase:** Phase 3 — JSON repositories and API.
 
 ## Decisions made
 - React + Vite + TypeScript, shadcn/ui, Node + Express + TypeScript, JSON data.
@@ -50,9 +61,9 @@ Dedicated factors are excluded from general preference-fit buckets to avoid doub
 ## Not yet implemented
 - [x] Inspect current repo and align docs with existing code (Phase 0).
 - [x] Establish foundation and runtime (Phase 1).
-- [ ] Frontend shell and design tokens (Phase 2).
+- [x] Frontend shell and design tokens (Phase 2).
 - [ ] Express API and JSON repositories (Phase 3).
-- [ ] Frontend-only demo login gate (Phase 2 / Phase 3; no backend auth endpoints).
+- [x] Frontend-only demo login gate (Phase 2; no backend auth endpoints).
 - [ ] Customer dashboard/detail (Phase 4).
 - [ ] Matching engine and candidate result UI (Phase 5 / Phase 6).
 - [ ] Match statuses, notes, follow-ups and mock proposal (Phase 6).

@@ -1,5 +1,31 @@
 @import "tailwindcss";
 
+@theme {
+  --color-canvas: #fbf9f8;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f5f1f2;
+  --color-ink: #29242a;
+  --color-body: #514a52;
+  --color-muted: #777078;
+  --color-muted-soft: #a49ba3;
+  --color-border: #e7dfe3;
+  --color-border-strong: #cfc2c9;
+  --color-primary: #6d3158;
+  --color-primary-hover: #572544;
+  --color-primary-soft: #f4eaf0;
+  --color-primary-disabled: #dcc8d5;
+  --color-positive: #2f6b52;
+  --color-positive-soft: #e8f3ec;
+  --color-warning: #8a5a18;
+  --color-warning-soft: #fbf1dd;
+  --color-danger: #a43c46;
+  --color-danger-soft: #f9e9ea;
+  --color-info: #3d5f85;
+  --color-info-soft: #eaf0f7;
+  --color-on-primary: #ffffff;
+  --color-scrim: #211820;
+}
+
 :root {
   --canvas: #fbf9f8;
   --surface: #ffffff;
@@ -7,17 +33,23 @@
   --ink: #29242a;
   --body: #514a52;
   --muted: #777078;
+  --muted-soft: #a49ba3;
   --border: #e7dfe3;
   --border-strong: #cfc2c9;
   --primary: #6d3158;
   --primary-hover: #572544;
   --primary-soft: #f4eaf0;
+  --primary-disabled: #dcc8d5;
   --positive: #2f6b52;
   --positive-soft: #e8f3ec;
   --warning: #8a5a18;
   --warning-soft: #fbf1dd;
   --danger: #a43c46;
   --danger-soft: #f9e9ea;
+  --info: #3d5f85;
+  --info-soft: #eaf0f7;
+  --on-primary: #ffffff;
+  --scrim: #211820;
 }
 
 * {

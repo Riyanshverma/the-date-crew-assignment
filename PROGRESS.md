@@ -1,29 +1,27 @@
 # Progress
 
 ## Current stage
-Phase 7 (Integrate and validate existing fictional demo data) completed on branch `master`.
+Phase 9 (Polish, dual-cloud deployment, and submission documentation) completed on branch `master` (Phase 8 AI held per instruction).
 
-## Phase 7 Execution Summary
+## Phase 9 Deployment & Verification Summary
 - **Work completed:**
-  - Validated syntax, structure, references, enums, and data splits of `tdc_matchmaker_dummy_data.json` and `server/data/{customers.json, matchmakers.json, matches.json}`.
-  - Verified 110 fictional customers (exact balance of 55 MAN and 55 WOMAN) assigned across 6 demo matchmakers (`mm-001` through `mm-006`).
-  - Validated Indian legal marriage age constraints: 0 underage profiles found (all men are >= 21 years old, all women are >= 18 years old).
-  - Validated profile readiness states: 52 active men and 47 active women (90.0% active), ensuring both genders have ample active candidates for matching.
-  - Validated foreign key and entity references:
-    - 100% of customer `assignedMatchmakerId` values reference valid demo matchmakers.
-    - 100% of match records reference valid `customerAId` and `customerBId` profiles.
-    - 0 self-pairings detected.
-    - 100% of status events and notes reference valid matchmakers.
-  - Validated synthetic contact privacy standards: all customer contact emails end in `.test` domain.
-  - Tested live match retrieval on both genders:
-    - Male customer `person-001`: Evaluated 55 opposite-gender profiles, 2 eligible candidates after dealbreakers, top match `person-085` (58% compatibility, 93% coverage).
-    - Female customer `person-071`: Evaluated 55 opposite-gender profiles, 2 eligible candidates after dealbreakers, top match `person-013` (63% compatibility, 93% coverage).
-  - Verified no synthetic profiles were generated; preserved the 110-profile fictional dataset.
+  - Deployed Backend API to Render Free Tier: `https://the-date-crew-assignment-521e.onrender.com`.
+  - Deployed Frontend SPA to Vercel: `https://the-date-crew-assignment-livid.vercel.app/`.
+  - Configured CORS middleware in `server/src/app.ts` reflecting Vercel origins with credentials support.
+  - Configured `VITE_API_BASE_URL` in `client/src/lib/api.ts` and `client/src/vite-env.d.ts` for clean environment-based switching between local proxy and live backend.
+  - Created `vercel.json` with SPA routing rewrites preventing 404s on deep links.
+  - Enhanced accessibility: ARIA modal attributes, `Escape` key event listeners, explicit input label bindings, and live error announcements.
+  - Enhanced mobile responsiveness: Adaptive mobile drawer menu with touch backdrop in `AppShell.tsx`.
+  - Verified empty, error, and loading states across Dashboard, Customers, Details, and Matching views.
+  - Verified live cross-cloud communication: Vercel frontend dispatches and renders operational queues and recommendations directly from Render backend.
+  - Updated `README.md` with live URLs, demo credentials, architectural summary, and matching documentation.
 - **Commands / checks run:**
-  - Automated validation script verifying schema, constraints, enums, age rules, and match retrieval: PASSED (0 errors, 0 warnings).
+  - Live Render Health: `GET https://the-date-crew-assignment-521e.onrender.com/api/health` returned 200 OK.
+  - Live CORS Preflight: `OPTIONS /api/matches` returned 204 No Content with `access-control-allow-origin: *` and credentials.
+  - Live Vercel Bundle: Verified `VITE_API_BASE_URL` baked into production bundle.
   - `npm run typecheck` — Passed with 0 errors.
-  - `npm run build` — Passed cleanly.
-- **Next Phase:** Phase 8 — AI feature proposal and review (requires explicit approval).
+  - `npm run build` — Passed cleanly in 1.29s.
+- **Next Phase:** Phase 8 AI feature (when user is ready) or final submission submission email dispatch.
 
 ## Decisions made
 - React + Vite + TypeScript, shadcn/ui, Node + Express + TypeScript, JSON data.
@@ -38,7 +36,7 @@ Phase 7 (Integrate and validate existing fictional demo data) completed on branc
 - Missing values are unknown, not automatic matches/mismatches.
 - Match history prevents duplicate/rejected pairings but unrelated history does not affect score.
 - Send Match creates a mock proposal for customer review; no real email/consent inference.
-- AI/external LLM calls and behavior learning are deferred.
+- AI/external LLM calls held per user instruction.
 - No backend authentication endpoints; credentials checked directly on frontend gate.
 
 ## Scoring v1
@@ -61,8 +59,8 @@ Dedicated factors are excluded from general preference-fit buckets to avoid doub
 - [x] Candidate UI, match actions, mock proposal, and pairing history (Phase 6).
 - [x] Generate fictional profiles, matchmakers, and example pairings (file created).
 - [x] Integrate and validate the existing JSON dataset in the repository (Phase 7).
-- [ ] AI feature (Phase 8).
-- [ ] Deployment and submission write-up (Phase 9).
+- [x] Deployment, responsiveness, accessibility, and documentation (Phase 9).
+- [ ] AI feature (Phase 8 — held per instruction).
 
 ## Next action
-Submit Phase 8 AI feature proposal (smallest useful feature, data minimization, consent, provider handling) and wait for explicit approval before implementing any LLM calls.
+Review live deployments and decide whether to implement Phase 8 (AI feature) or finalize the assignment submission.

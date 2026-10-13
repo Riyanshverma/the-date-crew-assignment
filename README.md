@@ -1,44 +1,55 @@
 # The Date Crew — Matchmaker Dashboard MVP
 
-This documentation pack transfers the assignment, product decisions, schemas, matching logic, design system, implementation sequence, and agent instructions into the project root. `AGENTS.md` is the primary instruction file for Antigravity; `CLAUDE.md` retains compatible project guidance.
+An internal, human-first matchmaking operations dashboard built for **The Date Crew (TDC)** to manage client dossiers, evaluate structured candidate compatibility, and facilitate curated introductions.
 
-## Read order
-1. `AGENTS.md` — primary instructions and phase-by-phase approval gates.\n2. `CLAUDE.md` — compatible project instructions.
-3. `CONTEXT.md` — assignment and agreed scope.
-4. `ARCHITECTURE.md` — schemas, API, matching algorithm and weights.
-5. `design.md` — visual tokens and UI requirements.
-6. `IMPLEMENTATION_PLAN.md` — milestones and verification.
-7. `PROGRESS.md` — current state and next action.
+## 🚀 Live Deployments & Repository
+- **Live Frontend (Vercel):** [https://the-date-crew-assignment-livid.vercel.app/](https://the-date-crew-assignment-livid.vercel.app/)
+- **Live Backend API (Render):** [https://the-date-crew-assignment-521e.onrender.com](https://the-date-crew-assignment-521e.onrender.com)
+- **GitHub Repository:** [https://github.com/Riyanshverma/the-date-crew-assignment](https://github.com/Riyanshverma/the-date-crew-assignment)
 
-## Stack
-- React + Vite + TypeScript
-- shadcn/ui + Tailwind CSS
-- Node.js + Express + TypeScript
-- Server-side JSON files; no database in the MVP
+---
 
-## Current decisions
-- 140 fictional profiles: 70 men, 70 women; two matchmaker accounts.
-- Profile readiness: `INCOMPLETE` or `ACTIVE`; active means complete and approved for matching, not identity verified.
-- Match status belongs to each pairing. Dashboard cards show counts by match status rather than one misleading customer-level status.
-- Matching is deterministic, explainable, preference-based, with hard eligibility constraints before scoring.
-- Preferred/Broader/Reverse/Two-way labels can coexist.
-- Male and female ranking strategies share a pipeline but use distinct weights, documented in `ARCHITECTURE.md`.
-- `Send Match` creates a mock proposal for the assigned customer to review; it does not send email or imply consent.
-- The fictional JSON dataset has already been generated; integrating and validating it is still pending. Do not regenerate it.\n- AI/LLM and behavioral learning remain deferred until the user approves that phase.
+## 🔑 Demo Credentials
+All matchmakers use the shared local evaluation password `password123`. The gate is frontend-scoped for local demonstration purposes only:
 
-## MVP checklist
-- [ ] Login and matchmaker-scoped customer dashboard
-- [ ] Customer profile, partner preferences, notes and match history
-- [ ] Candidate eligibility and ranking with evidence
-- [ ] Match status transitions, follow-up dates and mock proposal
-- [x] Generate 140 fictional profiles and two matchmakers (dataset created)\n- [ ] Integrate and validate the existing dataset
-- [ ] Responsive UI, deployment, GitHub repository and submission write-up
-- [ ] AI feature added in a later approved phase because the assessment requires one
+| Username | Name | Role | Scope |
+|---|---|---|---|
+| `demo-matchmaker-1` | Aarav Mehta | Matchmaker | Manages assigned client queue |
+| `demo-matchmaker-2` | Mira Kapoor | Matchmaker | Manages assigned client queue |
+| `demo-matchmaker-3` | Kabir Sharma | Matchmaker | Manages assigned client queue |
+| `demo-matchmaker-4` | Ananya Rao | Matchmaker | Manages assigned client queue |
+| `demo-matchmaker-5` | Vihaan Sethi | Matchmaker | Manages assigned client queue |
+| `demo-matchmaker-6` | Ishita Nair | Matchmaker | Manages assigned client queue |
 
-## Research references
-- TDC: https://www.thedatecrew.com/
-- TDC process: https://www.thedatecrew.com/how-we-work
-- Hinge matching: https://hinge.co/how-we-connect-daters
-- Shaadi.com matching categories: https://www.shaadi.com/info/customer-relations/faq/match-making
+---
 
-The numerical score is a transparent MVP heuristic, not a scientific compatibility measure or probability of relationship success. TDC's public site describes its service as human-led and “No AI. No App.” The internship assessment nevertheless requires an AI feature; this prototype should not be described as TDC's production algorithm.
+## 🛠 Tech Stack & Architecture
+
+- **Frontend:** React 19, Vite, TypeScript, Tailwind CSS, Lucide icons, accessible dialogs & custom design tokens adhering to `design.md`.
+- **Backend:** Node.js, Express 5, TypeScript (`tsx`), CORS enabled with credentials reflection.
+- **Data Persistence:** Server-side atomic JSON storage with locking (`server/data/customers.json`, `matches.json`, `matchmakers.json`).
+- **Dataset:** 110 synthetically generated fictional Indian profiles (55 men, 55 women) strictly adhering to Indian legal marriage ages (men $\ge 21$, women $\ge 18$) and privacy standards (`.test` emails).
+
+---
+
+## 🧠 Matching Engine & Logic (`mvp-v1`)
+
+Matching is completely deterministic, explainable, and separated from Express route handlers and UI components:
+1. **Eligibility & Dealbreaker Gates:** Applied strictly **before** scoring. Legal age violations, non-matching gender, self, and explicit dealbreakers (smoking, diet, marital status, children stance, age, height, location, religion) exclude candidates immediately. Missing data (`PREFERS_NOT_TO_SAY` or `null`) is **never** scored as zero or treated as a mismatch.
+2. **Two-Way Directional Scoring:** Evaluates both Customer $\rightarrow$ Candidate and Candidate $\rightarrow$ Customer fit. Dedicated gender-specific weighting heuristics (`MALE_STRATEGY` vs `FEMALE_STRATEGY`) reflect real-world matchmaking priorities while avoiding double-counting dedicated factors.
+3. **Score Renormalization & Coverage:** Overall compatibility is renormalized over available data (`scoreCoverage %`), ensuring fair comparisons even with partially completed profiles.
+4. **Structured Evidence:** All candidate comparisons are partitioned into **Matched Criteria**, **Differences**, and **Unknown Fields**, accompanied by the transparency notice: *"Based on structured preference alignment; not a prediction of relationship success."*
+5. **Classifications:** Labels candidates as `TWO_WAY`, `PREFERRED`, `REVERSE`, or `BROADER` to provide immediate clarity to matchmakers.
+6. **Mock Proposal Safeguard:** The **Send Match** action records a mock proposal (`PROPOSAL_SHARED`) for client review. It never dispatches real email or infers mutual consent.
+
+---
+
+## 📋 Project Checklist & Status
+- [x] Login and matchmaker-scoped customer dashboard queue (Phase 1 & 2)
+- [x] REST API and JSON repositories with atomic writes (Phase 3)
+- [x] Customer profile, partner preferences, notes, and pairing history (Phase 4)
+- [x] Deterministic matching engine with gender-specific weights (Phase 5)
+- [x] Candidate UI, match actions, mock proposal, and pairing history (Phase 6)
+- [x] Validation and integration of 110-profile fictional dataset (Phase 7)
+- [x] Accessibility, responsive mobile drawer, and empty/error states (Phase 9)
+- [x] Dual-cloud deployment: Backend on Render + Frontend on Vercel (Phase 9)

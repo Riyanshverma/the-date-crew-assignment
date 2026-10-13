@@ -14,17 +14,34 @@ export function App() {
   }
 
   return (
-    <AppShell
-      matchmaker={currentMatchmaker}
-      onLogout={() => setCurrentMatchmaker(null)}
-      title="Matchmaker Dashboard"
-      subtitle="Operational client queue and pairing status tracking"
-    >
-      <Routes>
-        <Route path="/dashboard" element={<DashboardPage matchmaker={currentMatchmaker} />} />
-        <Route path="/customers" element={<CustomersPage matchmaker={currentMatchmaker} />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
-    </AppShell>
+    <Routes>
+      <Route
+        path="/dashboard"
+        element={
+          <AppShell
+            matchmaker={currentMatchmaker}
+            onLogout={() => setCurrentMatchmaker(null)}
+            title="Matchmaker Dashboard"
+            subtitle="Operational client queue and pairing status tracking"
+          >
+            <DashboardPage matchmaker={currentMatchmaker} />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/customers"
+        element={
+          <AppShell
+            matchmaker={currentMatchmaker}
+            onLogout={() => setCurrentMatchmaker(null)}
+            title="Customer Directory"
+            subtitle="Assigned clients, profile status, and pairing records"
+          >
+            <CustomersPage matchmaker={currentMatchmaker} />
+          </AppShell>
+        }
+      />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
   );
 }

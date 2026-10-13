@@ -35,7 +35,7 @@ export function AppShell({ matchmaker, onLogout, children, title, subtitle }: Ap
       <aside className="w-[248px] shrink-0 bg-surface border-r border-border flex flex-col justify-between h-screen sticky top-0">
         <div>
           {/* Brand Header */}
-          <div className="p-5 border-b border-border">
+          <div className="p-5.25 border-b border-border">
             <Link to="/dashboard" className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-primary text-white flex items-center justify-center shadow-xs">
                 <Sparkles className="w-5 h-5" />
@@ -102,7 +102,6 @@ export function AppShell({ matchmaker, onLogout, children, title, subtitle }: Ap
           <div className="flex items-center gap-3">
             <div className="text-right">
               <div className="text-xs font-semibold text-ink">{matchmaker.displayName}</div>
-              <div className="text-[11px] text-muted">Assigned Matchmaker</div>
             </div>
             <div className="w-8 h-8 rounded-full bg-primary-soft text-primary font-semibold text-xs flex items-center justify-center">
               {matchmaker.displayName.slice(0, 1)}

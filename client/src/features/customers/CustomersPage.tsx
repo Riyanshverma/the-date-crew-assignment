@@ -15,23 +15,6 @@ export function CustomersPage({ matchmaker }: CustomersPageProps) {
 
   return (
     <div className="space-y-6">
-      {/* Directory Header */}
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-[650] text-ink tracking-tight">Customer Directory</h2>
-          <p className="text-xs text-muted mt-0.5">
-            Profiles assigned to {matchmaker.displayName} ({matchmaker.id}).
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted font-medium">Dataset Scope:</span>
-          <span className="text-xs font-semibold px-2.5 py-1 bg-surface rounded-full border border-border">
-            140 Fictional Profiles &bull; 70 Men, 70 Women
-          </span>
-        </div>
-      </div>
-
       {/* Filter and Search Controls */}
       <div className="bg-surface rounded-[11px] border border-border p-4 shadow-xs flex items-center gap-3 justify-between">
         <div className="relative w-80">

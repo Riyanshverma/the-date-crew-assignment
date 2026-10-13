@@ -1,7 +1,26 @@
 # Progress
 
 ## Current stage
-Product and architecture planning is documented. Implementation has not yet started from this pack.
+Phase 1 (Foundation and runtime) completed. Frontend and server runtime baselines are operational and pass TypeScript checks.
+
+## Phase 1 Execution Summary
+- **Work completed:**
+  - Initialized Git repository and recorded initial baseline commit.
+  - Created `server/src/routes/api.ts` implementing Express `apiRouter` and `apiErrorHandler`, resolving the missing module error in `server/src/app.ts`.
+  - Renamed `dummy-data.json` to `tdc_matchmaker_dummy_data.json` to match documentation and project configuration.
+  - Verified TypeScript compilation for both `tsconfig.client.json` and `tsconfig.server.json`.
+  - Verified Express application starts and `GET /api/health` returns `{ "service": "tdc-matchmaker-api", "status": "ok" }`.
+  - Verified `npm run build` executes cleanly.
+- **Files changed:**
+  - `server/src/routes/api.ts` (created)
+  - `tdc_matchmaker_dummy_data.json` (renamed from `dummy-data.json`)
+  - `PROGRESS.md` (updated)
+- **Commands / checks run:**
+  - `npm run typecheck` — Passed (exit code 0 for client and server).
+  - Health check test via ephemeral server — Passed (HTTP 200, `{ service: 'tdc-matchmaker-api', status: 'ok' }`).
+  - `npm run build` — Passed (typecheck + vite build succeeded in 600ms).
+- **Failures / blockers:** None.
+- **Next Phase:** Phase 2 — Visual shell and frontend demo login.
 
 ## Decisions made
 - React + Vite + TypeScript, shadcn/ui, Node + Express + TypeScript, JSON data.
@@ -29,16 +48,18 @@ Product and architecture planning is documented. Implementation has not yet star
 Dedicated factors are excluded from general preference-fit buckets to avoid double counting. These are transparent initial heuristics, not scientific measures. Unknown factors are excluded/renormalized with score coverage rather than counted as mismatches.
 
 ## Not yet implemented
-- [ ] Inspect current repo and align docs with existing code.
-- [ ] Frontend shell and design tokens.
-- [ ] Express API and JSON repositories.
-- [ ] Frontend-only demo login gate (not security; no backend auth endpoints).
-- [ ] Customer dashboard/detail.
-- [ ] Matching engine and candidate result UI.
-- [ ] Match statuses, notes, follow-ups and mock proposal.
-- [x] Generate 140 fictional profiles, two matchmakers, and example pairings (file created).\n- [ ] Integrate and validate the existing JSON dataset in the repository.
-- [ ] AI feature.
-- [ ] Deployment and submission write-up.
+- [x] Inspect current repo and align docs with existing code (Phase 0).
+- [x] Establish foundation and runtime (Phase 1).
+- [ ] Frontend shell and design tokens (Phase 2).
+- [ ] Express API and JSON repositories (Phase 3).
+- [ ] Frontend-only demo login gate (Phase 2 / Phase 3; no backend auth endpoints).
+- [ ] Customer dashboard/detail (Phase 4).
+- [ ] Matching engine and candidate result UI (Phase 5 / Phase 6).
+- [ ] Match statuses, notes, follow-ups and mock proposal (Phase 6).
+- [x] Generate 140 fictional profiles, two matchmakers, and example pairings (file created).
+- [ ] Integrate and validate the existing JSON dataset in the repository (Phase 7).
+- [ ] AI feature (Phase 8).
+- [ ] Deployment and submission write-up (Phase 9).
 
 ## Next action
-Follow Phase 0 in `IMPLEMENTATION_PLAN.md`: inspect the repository, read the docs, report existing state/conflicts, and wait for approval before Phase 1. Do not regenerate dummy data or implement AI during initial assessment.
+Wait for explicit approval to begin Phase 2: Visual shell and frontend demo login per `IMPLEMENTATION_PLAN.md`.

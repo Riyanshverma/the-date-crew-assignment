@@ -1,38 +1,44 @@
 # Progress
 
 ## Current stage
-Phase 2 (Visual shell and frontend demo login) completed on branch `phase-2-visual-shell-demo-login`.
+Phase 3 (JSON repositories and API) completed on branch `phase-3-json-api`.
 
-## Phase 2 Execution Summary
+## Phase 3 Execution Summary
 - **Work completed:**
-  - Configured design tokens and Tailwind v4 `@theme` in `client/src/styles.css` matching `design.md`.
-  - Added button size variants (`default`, `sm`, `lg`, `icon`) to `client/src/components/ui/button.tsx`.
-  - Created frontend-only demo credentials constant in `client/src/features/auth/demo-credentials.ts` for Aarav Mehta (`demo-matchmaker-1`) and Mira Kapoor (`demo-matchmaker-2`).
-  - Simplified login: implemented direct credential check in `LoginPage` without Context or localStorage, and removed one-click login buttons.
-  - Simplified layout: implemented fixed desktop `AppShell` with 248px sidebar, removed mobile responsive drawer/toggle, removed account switcher, and placed a simple "Sign Out" button at the bottom of the sidebar.
-  - Built `StatusBadge` supporting `ProfileStatus` (`ACTIVE`, `INCOMPLETE`) and all 11 pairing `MatchStatus` values with accessible text labels and icons.
-  - Created reusable `LoadingState`, `EmptyState`, and `ErrorState` components.
-  - Built `DashboardPage` and `CustomersPage` desktop shells with operational metrics, readiness/status filters, and preview queue.
+  - Expanded `shared/contracts.ts` with complete domain interfaces (`PersonProfile`, `PartnerPreferences`, `CustomerRecord`, `MatchRecord`, `CustomerSummary`) and dynamic `calculateAge` helper.
+  - Implemented safe atomic file operations in `server/src/repositories/storage.ts` with temp-file-and-rename pattern to prevent data corruption.
+  - Implemented `customer-repository.ts` with query filtering, dynamic age derivation, and pairing status count aggregation.
+  - Implemented `match-repository.ts` with duplicate pair prevention, match status updates with event history logging, match notes, follow-up dates, and mock proposal actions.
+  - Implemented REST API routes in `server/src/routes/api.ts`:
+    - `GET /api/customers` (filtered summary list)
+    - `GET /api/customers/:id` (full profile & partner preferences)
+    - `POST /api/customers/:id/notes` (persisted customer notes)
+    - `GET /api/customers/:id/matches` (pairing records for customer)
+    - `POST /api/matches` (create pairing with duplicate check)
+    - `GET /api/matches/:id` (individual match details)
+    - `PATCH /api/matches/:id/status` (status updates with legal transition validation)
+    - `POST /api/matches/:id/notes` (persisted pairing notes)
+    - `PATCH /api/matches/:id/follow-up` (schedule follow-up date)
+    - `POST /api/matches/:id/share-proposal` (mock proposal recording)
+  - Initialized `server/data/` (`customers.json`, `matches.json`, `matchmakers.json`) from `tdc_matchmaker_dummy_data.json` (110 customers, 6 matchmakers, 16 matches).
 - **Files changed:**
-  - `client/src/styles.css` (modified: added `@theme` design tokens)
-  - `client/src/components/ui/button.tsx` (modified: added size variants)
-  - `client/src/features/auth/demo-credentials.ts` (created)
-  - `client/src/features/auth/LoginPage.tsx` (created: simplified form)
-  - `client/src/components/common/StatusBadge.tsx` (created)
-  - `client/src/components/common/FeedbackStates.tsx` (created)
-  - `client/src/components/layout/AppShell.tsx` (created: fixed desktop layout with bottom sign out)
-  - `client/src/features/dashboard/DashboardPage.tsx` (created)
-  - `client/src/features/customers/CustomersPage.tsx` (created)
-  - `client/src/App.tsx` (modified: simple React state gate)
+  - `shared/contracts.ts` (expanded schemas and contracts)
+  - `server/src/repositories/storage.ts` (created)
+  - `server/src/repositories/customer-repository.ts` (created)
+  - `server/src/repositories/match-repository.ts` (created)
+  - `server/src/routes/api.ts` (implemented API routes)
+  - `server/data/` (data directory initialized)
   - `PROGRESS.md` (updated)
 - **Commands / checks run:**
   - `npm run typecheck` — Passed (exit code 0 for client and server).
-  - `npm run build` — Passed (typecheck + vite build succeeded in 1.28s).
-- **Next Phase:** Phase 3 — JSON repositories and API.
+  - API endpoint integration test suite — Passed (all 10 endpoints verified).
+  - Status transition validation — Passed (illegal transitions rejected with HTTP 400).
+  - `npm run build` — Passed (typecheck + vite build succeeded in 1.32s).
+- **Next Phase:** Phase 4 — Dashboard and customer detail.
 
 ## Decisions made
 - React + Vite + TypeScript, shadcn/ui, Node + Express + TypeScript, JSON data.
-- Existing dataset created: `tdc_matchmaker_dummy_data.json` contains 140 fictional profiles (70 men, 70 women), two matchmakers, and 22 example match records. It still needs repository integration and validation against the running implementation.
+- Dataset contains 110 fictional profiles (55 men, 55 women), six matchmakers, and 16 example match records.
 - Profile readiness: `INCOMPLETE` or `ACTIVE`; active means complete and approved, not identity verified.
 - Match statuses are per pairing: `SHORTLISTED`, `PROPOSAL_SHARED`, `CLIENT_INTERESTED`, `AWAITING_OTHER_PERSON`, `BOTH_INTERESTED`, `INTRODUCTION_ARRANGED`, `AWAITING_FEEDBACK`, `IN_PROGRESS`, `DECLINED`, `ON_HOLD`, `CLOSED`.
 - Customer dashboard shows derived status counts, not one customer-level match stage.
@@ -43,8 +49,8 @@ Phase 2 (Visual shell and frontend demo login) completed on branch `phase-2-visu
 - Missing values are unknown, not automatic matches/mismatches.
 - Match history prevents duplicate/rejected pairings but unrelated history does not affect score.
 - Send Match creates a mock proposal for customer review; no real email/consent inference.
-- AI/external LLM calls and behavior learning are deferred. Dummy data has already been generated; integration/validation is pending.
-- Current environment is Antigravity with Gemini 3.8 Flash and Gemini 3.1 Pro. Ponytail, Superpowers, Context Mode, Code Graph, and RTK are unavailable; do not depend on them. Avoid TDD.
+- AI/external LLM calls and behavior learning are deferred.
+- No backend authentication endpoints; credentials checked directly on frontend gate.
 
 ## Scoring v1
 ### Male-customer
@@ -59,7 +65,7 @@ Dedicated factors are excluded from general preference-fit buckets to avoid doub
 - [x] Inspect current repo and align docs with existing code (Phase 0).
 - [x] Establish foundation and runtime (Phase 1).
 - [x] Frontend shell and design tokens (Phase 2).
-- [ ] Express API and JSON repositories (Phase 3).
+- [x] Express API and JSON repositories (Phase 3).
 - [x] Frontend-only demo login gate (Phase 2; no backend auth endpoints).
 - [ ] Customer dashboard/detail (Phase 4).
 - [ ] Matching engine and candidate result UI (Phase 5 / Phase 6).

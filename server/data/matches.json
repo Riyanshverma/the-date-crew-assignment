@@ -1,0 +1,879 @@
+[
+  {
+    "id": "match-002",
+    "customerAId": "person-006",
+    "customerBId": "person-090",
+    "createdByMatchmakerId": "mm-002",
+    "status": "PROPOSAL_SHARED",
+    "classifications": [
+      "TWO_WAY"
+    ],
+    "compatibilityScore": 90,
+    "customerPreferenceFit": 75,
+    "reversePreferenceFit": 58,
+    "scoreVersion": "mvp-v1",
+    "proposal": {
+      "sharedAt": "2026-09-23T10:00:00+05:30",
+      "sharedByMatchmakerId": "mm-002",
+      "mockMessage": "Demo-only proposal: please review this profile and share whether you would like an introduction."
+    },
+    "introduction": {
+      "arrangedAt": null,
+      "feedbackFromCustomerA": null,
+      "feedbackFromCustomerB": null,
+      "outcome": null
+    },
+    "followUpAt": "2026-09-29T10:00:00+05:30",
+    "notes": [
+      {
+        "id": "matchnote-002-1",
+        "authorMatchmakerId": "mm-002",
+        "body": "Fictional demo note: discuss communication style, family expectations, and location flexibility.",
+        "createdAt": "2026-09-23T10:00:00+05:30"
+      }
+    ],
+    "statusHistory": [
+      {
+        "id": "event-002-1",
+        "fromStatus": null,
+        "toStatus": "SHORTLISTED",
+        "changedByMatchmakerId": "mm-002",
+        "note": "Candidate shortlisted for human review.",
+        "createdAt": "2026-09-22T10:00:00+05:30"
+      },
+      {
+        "id": "event-002-2",
+        "fromStatus": "SHORTLISTED",
+        "toStatus": "PROPOSAL_SHARED",
+        "changedByMatchmakerId": "mm-002",
+        "note": "Demo status transition for workflow testing.",
+        "createdAt": "2026-09-23T10:00:00+05:30"
+      }
+    ],
+    "createdAt": "2026-09-22T10:00:00+05:30",
+    "updatedAt": "2026-09-23T10:00:00+05:30"
+  },
+  {
+    "id": "match-003",
+    "customerAId": "person-009",
+    "customerBId": "person-097",
+    "createdByMatchmakerId": "mm-001",
+    "status": "CLIENT_INTERESTED",
+    "classifications": [
+      "BROADER",
+      "TWO_WAY",
+      "PREFERRED"
+    ],
+    "compatibilityScore": 84,
+    "customerPreferenceFit": 79,
+    "reversePreferenceFit": 81,
+    "scoreVersion": "mvp-v1",
+    "proposal": {
+      "sharedAt": "2026-09-24T10:00:00+05:30",
+      "sharedByMatchmakerId": "mm-001",
+      "mockMessage": "Demo-only proposal: please review this profile and share whether you would like an introduction."
+    },
+    "introduction": {
+      "arrangedAt": null,
+      "feedbackFromCustomerA": null,
+      "feedbackFromCustomerB": null,
+      "outcome": null
+    },
+    "followUpAt": "2026-09-30T10:00:00+05:30",
+    "notes": [
+      {
+        "id": "matchnote-003-1",
+        "authorMatchmakerId": "mm-001",
+        "body": "Fictional demo note: discuss communication style, family expectations, and location flexibility.",
+        "createdAt": "2026-09-24T10:00:00+05:30"
+      }
+    ],
+    "statusHistory": [
+      {
+        "id": "event-003-1",
+        "fromStatus": null,
+        "toStatus": "SHORTLISTED",
+        "changedByMatchmakerId": "mm-001",
+        "note": "Candidate shortlisted for human review.",
+        "createdAt": "2026-09-23T10:00:00+05:30"
+      },
+      {
+        "id": "event-003-2",
+        "fromStatus": "SHORTLISTED",
+        "toStatus": "CLIENT_INTERESTED",
+        "changedByMatchmakerId": "mm-001",
+        "note": "Demo status transition for workflow testing.",
+        "createdAt": "2026-09-24T10:00:00+05:30"
+      }
+    ],
+    "createdAt": "2026-09-23T10:00:00+05:30",
+    "updatedAt": "2026-09-24T10:00:00+05:30"
+  },
+  {
+    "id": "match-005",
+    "customerAId": "person-015",
+    "customerBId": "person-111",
+    "createdByMatchmakerId": "mm-001",
+    "status": "BOTH_INTERESTED",
+    "classifications": [
+      "PREFERRED",
+      "REVERSE"
+    ],
+    "compatibilityScore": 69,
+    "customerPreferenceFit": 87,
+    "reversePreferenceFit": 47,
+    "scoreVersion": "mvp-v1",
+    "proposal": {
+      "sharedAt": "2026-09-26T10:00:00+05:30",
+      "sharedByMatchmakerId": "mm-001",
+      "mockMessage": "Demo-only proposal: please review this profile and share whether you would like an introduction."
+    },
+    "introduction": {
+      "arrangedAt": null,
+      "feedbackFromCustomerA": null,
+      "feedbackFromCustomerB": null,
+      "outcome": null
+    },
+    "followUpAt": "2026-10-02T10:00:00+05:30",
+    "notes": [
+      {
+        "id": "matchnote-005-1",
+        "authorMatchmakerId": "mm-001",
+        "body": "Fictional demo note: discuss communication style, family expectations, and location flexibility.",
+        "createdAt": "2026-09-26T10:00:00+05:30"
+      }
+    ],
+    "statusHistory": [
+      {
+        "id": "event-005-1",
+        "fromStatus": null,
+        "toStatus": "SHORTLISTED",
+        "changedByMatchmakerId": "mm-001",
+        "note": "Candidate shortlisted for human review.",
+        "createdAt": "2026-09-25T10:00:00+05:30"
+      },
+      {
+        "id": "event-005-2",
+        "fromStatus": "SHORTLISTED",
+        "toStatus": "BOTH_INTERESTED",
+        "changedByMatchmakerId": "mm-001",
+        "note": "Demo status transition for workflow testing.",
+        "createdAt": "2026-09-26T10:00:00+05:30"
+      }
+    ],
+    "createdAt": "2026-09-25T10:00:00+05:30",
+    "updatedAt": "2026-09-26T10:00:00+05:30"
+  },
+  {
+    "id": "match-006",
+    "customerAId": "person-018",
+    "customerBId": "person-118",
+    "createdByMatchmakerId": "mm-002",
+    "status": "INTRODUCTION_ARRANGED",
+    "classifications": [
+      "REVERSE",
+      "PREFERRED"
+    ],
+    "compatibilityScore": 87,
+    "customerPreferenceFit": 62,
+    "reversePreferenceFit": 67,
+    "scoreVersion": "mvp-v1",
+    "proposal": {
+      "sharedAt": "2026-09-27T10:00:00+05:30",
+      "sharedByMatchmakerId": "mm-002",
+      "mockMessage": "Demo-only proposal: please review this profile and share whether you would like an introduction."
+    },
+    "introduction": {
+      "arrangedAt": "2026-09-27T10:00:00+05:30",
+      "feedbackFromCustomerA": null,
+      "feedbackFromCustomerB": null,
+      "outcome": null
+    },
+    "followUpAt": "2026-10-03T10:00:00+05:30",
+    "notes": [
+      {
+        "id": "matchnote-006-1",
+        "authorMatchmakerId": "mm-002",
+        "body": "Fictional demo note: discuss communication style, family expectations, and location flexibility.",
+        "createdAt": "2026-09-27T10:00:00+05:30"
+      }
+    ],
+    "statusHistory": [
+      {
+        "id": "event-006-1",
+        "fromStatus": null,
+        "toStatus": "SHORTLISTED",
+        "changedByMatchmakerId": "mm-002",
+        "note": "Candidate shortlisted for human review.",
+        "createdAt": "2026-09-26T10:00:00+05:30"
+      },
+      {
+        "id": "event-006-2",
+        "fromStatus": "SHORTLISTED",
+        "toStatus": "INTRODUCTION_ARRANGED",
+        "changedByMatchmakerId": "mm-002",
+        "note": "Demo status transition for workflow testing.",
+        "createdAt": "2026-09-27T10:00:00+05:30"
+      }
+    ],
+    "createdAt": "2026-09-26T10:00:00+05:30",
+    "updatedAt": "2026-09-27T10:00:00+05:30"
+  },
+  {
+    "id": "match-007",
+    "customerAId": "person-021",
+    "customerBId": "person-125",
+    "createdByMatchmakerId": "mm-001",
+    "status": "AWAITING_FEEDBACK",
+    "classifications": [
+      "TWO_WAY",
+      "BROADER",
+      "REVERSE"
+    ],
+    "compatibilityScore": 98,
+    "customerPreferenceFit": 98,
+    "reversePreferenceFit": 47,
+    "scoreVersion": "mvp-v1",
+    "proposal": {
+      "sharedAt": "2026-09-28T10:00:00+05:30",
+      "sharedByMatchmakerId": "mm-001",
+      "mockMessage": "Demo-only proposal: please review this profile and share whether you would like an introduction."
+    },
+    "introduction": {
+      "arrangedAt": "2026-09-28T10:00:00+05:30",
+      "feedbackFromCustomerA": "Not the right fit",
+      "feedbackFromCustomerB": "Interested in continuing",
+      "outcome": null
+    },
+    "followUpAt": "2026-10-04T10:00:00+05:30",
+    "notes": [
+      {
+        "id": "matchnote-007-1",
+        "authorMatchmakerId": "mm-001",
+        "body": "Fictional demo note: discuss communication style, family expectations, and location flexibility.",
+        "createdAt": "2026-09-28T10:00:00+05:30"
+      }
+    ],
+    "statusHistory": [
+      {
+        "id": "event-007-1",
+        "fromStatus": null,
+        "toStatus": "SHORTLISTED",
+        "changedByMatchmakerId": "mm-001",
+        "note": "Candidate shortlisted for human review.",
+        "createdAt": "2026-09-27T10:00:00+05:30"
+      },
+      {
+        "id": "event-007-2",
+        "fromStatus": "SHORTLISTED",
+        "toStatus": "AWAITING_FEEDBACK",
+        "changedByMatchmakerId": "mm-001",
+        "note": "Demo status transition for workflow testing.",
+        "createdAt": "2026-09-28T10:00:00+05:30"
+      }
+    ],
+    "createdAt": "2026-09-27T10:00:00+05:30",
+    "updatedAt": "2026-09-28T10:00:00+05:30"
+  },
+  {
+    "id": "match-008",
+    "customerAId": "person-024",
+    "customerBId": "person-132",
+    "createdByMatchmakerId": "mm-002",
+    "status": "IN_PROGRESS",
+    "classifications": [
+      "BROADER",
+      "REVERSE",
+      "TWO_WAY"
+    ],
+    "compatibilityScore": 77,
+    "customerPreferenceFit": 76,
+    "reversePreferenceFit": 76,
+    "scoreVersion": "mvp-v1",
+    "proposal": {
+      "sharedAt": "2026-09-29T10:00:00+05:30",
+      "sharedByMatchmakerId": "mm-002",
+      "mockMessage": "Demo-only proposal: please review this profile and share whether you would like an introduction."
+    },
+    "introduction": {
+      "arrangedAt": "2026-09-29T10:00:00+05:30",
+      "feedbackFromCustomerA": "Interested in continuing",
+      "feedbackFromCustomerB": "Would like more information",
+      "outcome": null
+    },
+    "followUpAt": "2026-10-05T10:00:00+05:30",
+    "notes": [
+      {
+        "id": "matchnote-008-1",
+        "authorMatchmakerId": "mm-002",
+        "body": "Fictional demo note: discuss communication style, family expectations, and location flexibility.",
+        "createdAt": "2026-09-29T10:00:00+05:30"
+      }
+    ],
+    "statusHistory": [
+      {
+        "id": "event-008-1",
+        "fromStatus": null,
+        "toStatus": "SHORTLISTED",
+        "changedByMatchmakerId": "mm-002",
+        "note": "Candidate shortlisted for human review.",
+        "createdAt": "2026-09-28T10:00:00+05:30"
+      },
+      {
+        "id": "event-008-2",
+        "fromStatus": "SHORTLISTED",
+        "toStatus": "IN_PROGRESS",
+        "changedByMatchmakerId": "mm-002",
+        "note": "Demo status transition for workflow testing.",
+        "createdAt": "2026-09-29T10:00:00+05:30"
+      }
+    ],
+    "createdAt": "2026-09-28T10:00:00+05:30",
+    "updatedAt": "2026-09-29T10:00:00+05:30"
+  },
+  {
+    "id": "match-009",
+    "customerAId": "person-027",
+    "customerBId": "person-139",
+    "createdByMatchmakerId": "mm-001",
+    "status": "DECLINED",
+    "classifications": [
+      "TWO_WAY",
+      "PREFERRED"
+    ],
+    "compatibilityScore": 82,
+    "customerPreferenceFit": 71,
+    "reversePreferenceFit": 49,
+    "scoreVersion": "mvp-v1",
+    "proposal": {
+      "sharedAt": "2026-09-30T10:00:00+05:30",
+      "sharedByMatchmakerId": "mm-001",
+      "mockMessage": "Demo-only proposal: please review this profile and share whether you would like an introduction."
+    },
+    "introduction": {
+      "arrangedAt": null,
+      "feedbackFromCustomerA": null,
+      "feedbackFromCustomerB": null,
+      "outcome": null
+    },
+    "followUpAt": null,
+    "notes": [
+      {
+        "id": "matchnote-009-1",
+        "authorMatchmakerId": "mm-001",
+        "body": "Fictional demo note: discuss communication style, family expectations, and location flexibility.",
+        "createdAt": "2026-09-30T10:00:00+05:30"
+      }
+    ],
+    "statusHistory": [
+      {
+        "id": "event-009-1",
+        "fromStatus": null,
+        "toStatus": "SHORTLISTED",
+        "changedByMatchmakerId": "mm-001",
+        "note": "Candidate shortlisted for human review.",
+        "createdAt": "2026-09-29T10:00:00+05:30"
+      },
+      {
+        "id": "event-009-2",
+        "fromStatus": "SHORTLISTED",
+        "toStatus": "DECLINED",
+        "changedByMatchmakerId": "mm-001",
+        "note": "Demo status transition for workflow testing.",
+        "createdAt": "2026-09-30T10:00:00+05:30"
+      }
+    ],
+    "createdAt": "2026-09-29T10:00:00+05:30",
+    "updatedAt": "2026-09-30T10:00:00+05:30"
+  },
+  {
+    "id": "match-010",
+    "customerAId": "person-030",
+    "customerBId": "person-076",
+    "createdByMatchmakerId": "mm-002",
+    "status": "ON_HOLD",
+    "classifications": [
+      "TWO_WAY",
+      "PREFERRED"
+    ],
+    "compatibilityScore": 94,
+    "customerPreferenceFit": 45,
+    "reversePreferenceFit": 77,
+    "scoreVersion": "mvp-v1",
+    "proposal": {
+      "sharedAt": null,
+      "sharedByMatchmakerId": null,
+      "mockMessage": null
+    },
+    "introduction": {
+      "arrangedAt": null,
+      "feedbackFromCustomerA": null,
+      "feedbackFromCustomerB": null,
+      "outcome": null
+    },
+    "followUpAt": "2026-10-07T10:00:00+05:30",
+    "notes": [
+      {
+        "id": "matchnote-010-1",
+        "authorMatchmakerId": "mm-002",
+        "body": "Fictional demo note: discuss communication style, family expectations, and location flexibility.",
+        "createdAt": "2026-10-01T10:00:00+05:30"
+      }
+    ],
+    "statusHistory": [
+      {
+        "id": "event-010-1",
+        "fromStatus": null,
+        "toStatus": "SHORTLISTED",
+        "changedByMatchmakerId": "mm-002",
+        "note": "Candidate shortlisted for human review.",
+        "createdAt": "2026-09-30T10:00:00+05:30"
+      },
+      {
+        "id": "event-010-2",
+        "fromStatus": "SHORTLISTED",
+        "toStatus": "ON_HOLD",
+        "changedByMatchmakerId": "mm-002",
+        "note": "Demo status transition for workflow testing.",
+        "createdAt": "2026-10-01T10:00:00+05:30"
+      }
+    ],
+    "createdAt": "2026-09-30T10:00:00+05:30",
+    "updatedAt": "2026-10-01T10:00:00+05:30"
+  },
+  {
+    "id": "match-011",
+    "customerAId": "person-033",
+    "customerBId": "person-083",
+    "createdByMatchmakerId": "mm-001",
+    "status": "CLOSED",
+    "classifications": [
+      "TWO_WAY"
+    ],
+    "compatibilityScore": 96,
+    "customerPreferenceFit": 62,
+    "reversePreferenceFit": 86,
+    "scoreVersion": "mvp-v1",
+    "proposal": {
+      "sharedAt": "2026-10-02T10:00:00+05:30",
+      "sharedByMatchmakerId": "mm-001",
+      "mockMessage": "Demo-only proposal: please review this profile and share whether you would like an introduction."
+    },
+    "introduction": {
+      "arrangedAt": "2026-10-02T10:00:00+05:30",
+      "feedbackFromCustomerA": "Would like more information",
+      "feedbackFromCustomerB": "Not the right fit",
+      "outcome": "ONGOING"
+    },
+    "followUpAt": null,
+    "notes": [
+      {
+        "id": "matchnote-011-1",
+        "authorMatchmakerId": "mm-001",
+        "body": "Fictional demo note: discuss communication style, family expectations, and location flexibility.",
+        "createdAt": "2026-10-02T10:00:00+05:30"
+      }
+    ],
+    "statusHistory": [
+      {
+        "id": "event-011-1",
+        "fromStatus": null,
+        "toStatus": "SHORTLISTED",
+        "changedByMatchmakerId": "mm-001",
+        "note": "Candidate shortlisted for human review.",
+        "createdAt": "2026-10-01T10:00:00+05:30"
+      },
+      {
+        "id": "event-011-2",
+        "fromStatus": "SHORTLISTED",
+        "toStatus": "CLOSED",
+        "changedByMatchmakerId": "mm-001",
+        "note": "Demo status transition for workflow testing.",
+        "createdAt": "2026-10-02T10:00:00+05:30"
+      }
+    ],
+    "createdAt": "2026-10-01T10:00:00+05:30",
+    "updatedAt": "2026-10-02T10:00:00+05:30"
+  },
+  {
+    "id": "match-013",
+    "customerAId": "person-039",
+    "customerBId": "person-097",
+    "createdByMatchmakerId": "mm-001",
+    "status": "PROPOSAL_SHARED",
+    "classifications": [
+      "TWO_WAY"
+    ],
+    "compatibilityScore": 76,
+    "customerPreferenceFit": 61,
+    "reversePreferenceFit": 44,
+    "scoreVersion": "mvp-v1",
+    "proposal": {
+      "sharedAt": "2026-10-04T10:00:00+05:30",
+      "sharedByMatchmakerId": "mm-001",
+      "mockMessage": "Demo-only proposal: please review this profile and share whether you would like an introduction."
+    },
+    "introduction": {
+      "arrangedAt": null,
+      "feedbackFromCustomerA": null,
+      "feedbackFromCustomerB": null,
+      "outcome": null
+    },
+    "followUpAt": "2026-10-10T10:00:00+05:30",
+    "notes": [
+      {
+        "id": "matchnote-013-1",
+        "authorMatchmakerId": "mm-001",
+        "body": "Fictional demo note: discuss communication style, family expectations, and location flexibility.",
+        "createdAt": "2026-10-04T10:00:00+05:30"
+      }
+    ],
+    "statusHistory": [
+      {
+        "id": "event-013-1",
+        "fromStatus": null,
+        "toStatus": "SHORTLISTED",
+        "changedByMatchmakerId": "mm-001",
+        "note": "Candidate shortlisted for human review.",
+        "createdAt": "2026-10-03T10:00:00+05:30"
+      },
+      {
+        "id": "event-013-2",
+        "fromStatus": "SHORTLISTED",
+        "toStatus": "PROPOSAL_SHARED",
+        "changedByMatchmakerId": "mm-001",
+        "note": "Demo status transition for workflow testing.",
+        "createdAt": "2026-10-04T10:00:00+05:30"
+      }
+    ],
+    "createdAt": "2026-10-03T10:00:00+05:30",
+    "updatedAt": "2026-10-04T10:00:00+05:30"
+  },
+  {
+    "id": "match-014",
+    "customerAId": "person-042",
+    "customerBId": "person-104",
+    "createdByMatchmakerId": "mm-002",
+    "status": "CLIENT_INTERESTED",
+    "classifications": [
+      "REVERSE"
+    ],
+    "compatibilityScore": 76,
+    "customerPreferenceFit": 93,
+    "reversePreferenceFit": 74,
+    "scoreVersion": "mvp-v1",
+    "proposal": {
+      "sharedAt": "2026-10-05T10:00:00+05:30",
+      "sharedByMatchmakerId": "mm-002",
+      "mockMessage": "Demo-only proposal: please review this profile and share whether you would like an introduction."
+    },
+    "introduction": {
+      "arrangedAt": null,
+      "feedbackFromCustomerA": null,
+      "feedbackFromCustomerB": null,
+      "outcome": null
+    },
+    "followUpAt": "2026-10-11T10:00:00+05:30",
+    "notes": [
+      {
+        "id": "matchnote-014-1",
+        "authorMatchmakerId": "mm-002",
+        "body": "Fictional demo note: discuss communication style, family expectations, and location flexibility.",
+        "createdAt": "2026-10-05T10:00:00+05:30"
+      }
+    ],
+    "statusHistory": [
+      {
+        "id": "event-014-1",
+        "fromStatus": null,
+        "toStatus": "SHORTLISTED",
+        "changedByMatchmakerId": "mm-002",
+        "note": "Candidate shortlisted for human review.",
+        "createdAt": "2026-10-04T10:00:00+05:30"
+      },
+      {
+        "id": "event-014-2",
+        "fromStatus": "SHORTLISTED",
+        "toStatus": "CLIENT_INTERESTED",
+        "changedByMatchmakerId": "mm-002",
+        "note": "Demo status transition for workflow testing.",
+        "createdAt": "2026-10-05T10:00:00+05:30"
+      }
+    ],
+    "createdAt": "2026-10-04T10:00:00+05:30",
+    "updatedAt": "2026-10-05T10:00:00+05:30"
+  },
+  {
+    "id": "match-016",
+    "customerAId": "person-048",
+    "customerBId": "person-118",
+    "createdByMatchmakerId": "mm-002",
+    "status": "BOTH_INTERESTED",
+    "classifications": [
+      "TWO_WAY"
+    ],
+    "compatibilityScore": 73,
+    "customerPreferenceFit": 45,
+    "reversePreferenceFit": 68,
+    "scoreVersion": "mvp-v1",
+    "proposal": {
+      "sharedAt": "2026-10-07T10:00:00+05:30",
+      "sharedByMatchmakerId": "mm-002",
+      "mockMessage": "Demo-only proposal: please review this profile and share whether you would like an introduction."
+    },
+    "introduction": {
+      "arrangedAt": null,
+      "feedbackFromCustomerA": null,
+      "feedbackFromCustomerB": null,
+      "outcome": null
+    },
+    "followUpAt": "2026-10-13T10:00:00+05:30",
+    "notes": [
+      {
+        "id": "matchnote-016-1",
+        "authorMatchmakerId": "mm-002",
+        "body": "Fictional demo note: discuss communication style, family expectations, and location flexibility.",
+        "createdAt": "2026-10-07T10:00:00+05:30"
+      }
+    ],
+    "statusHistory": [
+      {
+        "id": "event-016-1",
+        "fromStatus": null,
+        "toStatus": "SHORTLISTED",
+        "changedByMatchmakerId": "mm-002",
+        "note": "Candidate shortlisted for human review.",
+        "createdAt": "2026-10-06T10:00:00+05:30"
+      },
+      {
+        "id": "event-016-2",
+        "fromStatus": "SHORTLISTED",
+        "toStatus": "BOTH_INTERESTED",
+        "changedByMatchmakerId": "mm-002",
+        "note": "Demo status transition for workflow testing.",
+        "createdAt": "2026-10-07T10:00:00+05:30"
+      }
+    ],
+    "createdAt": "2026-10-06T10:00:00+05:30",
+    "updatedAt": "2026-10-07T10:00:00+05:30"
+  },
+  {
+    "id": "match-017",
+    "customerAId": "person-051",
+    "customerBId": "person-125",
+    "createdByMatchmakerId": "mm-001",
+    "status": "INTRODUCTION_ARRANGED",
+    "classifications": [
+      "TWO_WAY",
+      "REVERSE"
+    ],
+    "compatibilityScore": 87,
+    "customerPreferenceFit": 59,
+    "reversePreferenceFit": 74,
+    "scoreVersion": "mvp-v1",
+    "proposal": {
+      "sharedAt": "2026-10-08T10:00:00+05:30",
+      "sharedByMatchmakerId": "mm-001",
+      "mockMessage": "Demo-only proposal: please review this profile and share whether you would like an introduction."
+    },
+    "introduction": {
+      "arrangedAt": "2026-10-08T10:00:00+05:30",
+      "feedbackFromCustomerA": null,
+      "feedbackFromCustomerB": null,
+      "outcome": null
+    },
+    "followUpAt": "2026-10-14T10:00:00+05:30",
+    "notes": [
+      {
+        "id": "matchnote-017-1",
+        "authorMatchmakerId": "mm-001",
+        "body": "Fictional demo note: discuss communication style, family expectations, and location flexibility.",
+        "createdAt": "2026-10-08T10:00:00+05:30"
+      }
+    ],
+    "statusHistory": [
+      {
+        "id": "event-017-1",
+        "fromStatus": null,
+        "toStatus": "SHORTLISTED",
+        "changedByMatchmakerId": "mm-001",
+        "note": "Candidate shortlisted for human review.",
+        "createdAt": "2026-10-07T10:00:00+05:30"
+      },
+      {
+        "id": "event-017-2",
+        "fromStatus": "SHORTLISTED",
+        "toStatus": "INTRODUCTION_ARRANGED",
+        "changedByMatchmakerId": "mm-001",
+        "note": "Demo status transition for workflow testing.",
+        "createdAt": "2026-10-08T10:00:00+05:30"
+      }
+    ],
+    "createdAt": "2026-10-07T10:00:00+05:30",
+    "updatedAt": "2026-10-08T10:00:00+05:30"
+  },
+  {
+    "id": "match-019",
+    "customerAId": "person-057",
+    "customerBId": "person-139",
+    "createdByMatchmakerId": "mm-001",
+    "status": "IN_PROGRESS",
+    "classifications": [
+      "BROADER",
+      "PREFERRED"
+    ],
+    "compatibilityScore": 65,
+    "customerPreferenceFit": 94,
+    "reversePreferenceFit": 60,
+    "scoreVersion": "mvp-v1",
+    "proposal": {
+      "sharedAt": "2026-10-10T10:00:00+05:30",
+      "sharedByMatchmakerId": "mm-001",
+      "mockMessage": "Demo-only proposal: please review this profile and share whether you would like an introduction."
+    },
+    "introduction": {
+      "arrangedAt": "2026-10-10T10:00:00+05:30",
+      "feedbackFromCustomerA": "Interested in continuing",
+      "feedbackFromCustomerB": "Would like more information",
+      "outcome": null
+    },
+    "followUpAt": "2026-10-16T10:00:00+05:30",
+    "notes": [
+      {
+        "id": "matchnote-019-1",
+        "authorMatchmakerId": "mm-001",
+        "body": "Fictional demo note: discuss communication style, family expectations, and location flexibility.",
+        "createdAt": "2026-10-10T10:00:00+05:30"
+      }
+    ],
+    "statusHistory": [
+      {
+        "id": "event-019-1",
+        "fromStatus": null,
+        "toStatus": "SHORTLISTED",
+        "changedByMatchmakerId": "mm-001",
+        "note": "Candidate shortlisted for human review.",
+        "createdAt": "2026-10-09T10:00:00+05:30"
+      },
+      {
+        "id": "event-019-2",
+        "fromStatus": "SHORTLISTED",
+        "toStatus": "IN_PROGRESS",
+        "changedByMatchmakerId": "mm-001",
+        "note": "Demo status transition for workflow testing.",
+        "createdAt": "2026-10-10T10:00:00+05:30"
+      }
+    ],
+    "createdAt": "2026-10-09T10:00:00+05:30",
+    "updatedAt": "2026-10-10T10:00:00+05:30"
+  },
+  {
+    "id": "match-020",
+    "customerAId": "person-060",
+    "customerBId": "person-076",
+    "createdByMatchmakerId": "mm-002",
+    "status": "DECLINED",
+    "classifications": [
+      "REVERSE"
+    ],
+    "compatibilityScore": 93,
+    "customerPreferenceFit": 73,
+    "reversePreferenceFit": 64,
+    "scoreVersion": "mvp-v1",
+    "proposal": {
+      "sharedAt": "2026-10-11T10:00:00+05:30",
+      "sharedByMatchmakerId": "mm-002",
+      "mockMessage": "Demo-only proposal: please review this profile and share whether you would like an introduction."
+    },
+    "introduction": {
+      "arrangedAt": null,
+      "feedbackFromCustomerA": null,
+      "feedbackFromCustomerB": null,
+      "outcome": null
+    },
+    "followUpAt": null,
+    "notes": [
+      {
+        "id": "matchnote-020-1",
+        "authorMatchmakerId": "mm-002",
+        "body": "Fictional demo note: discuss communication style, family expectations, and location flexibility.",
+        "createdAt": "2026-10-11T10:00:00+05:30"
+      }
+    ],
+    "statusHistory": [
+      {
+        "id": "event-020-1",
+        "fromStatus": null,
+        "toStatus": "SHORTLISTED",
+        "changedByMatchmakerId": "mm-002",
+        "note": "Candidate shortlisted for human review.",
+        "createdAt": "2026-10-10T10:00:00+05:30"
+      },
+      {
+        "id": "event-020-2",
+        "fromStatus": "SHORTLISTED",
+        "toStatus": "DECLINED",
+        "changedByMatchmakerId": "mm-002",
+        "note": "Demo status transition for workflow testing.",
+        "createdAt": "2026-10-11T10:00:00+05:30"
+      }
+    ],
+    "createdAt": "2026-10-10T10:00:00+05:30",
+    "updatedAt": "2026-10-11T10:00:00+05:30"
+  },
+  {
+    "id": "match-022",
+    "customerAId": "person-066",
+    "customerBId": "person-090",
+    "createdByMatchmakerId": "mm-002",
+    "status": "CLOSED",
+    "classifications": [
+      "PREFERRED",
+      "BROADER"
+    ],
+    "compatibilityScore": 60,
+    "customerPreferenceFit": 82,
+    "reversePreferenceFit": 40,
+    "scoreVersion": "mvp-v1",
+    "proposal": {
+      "sharedAt": "2026-10-13T10:00:00+05:30",
+      "sharedByMatchmakerId": "mm-002",
+      "mockMessage": "Demo-only proposal: please review this profile and share whether you would like an introduction."
+    },
+    "introduction": {
+      "arrangedAt": "2026-10-13T10:00:00+05:30",
+      "feedbackFromCustomerA": "Interested in continuing",
+      "feedbackFromCustomerB": "Would like more information",
+      "outcome": "NOT_A_FIT"
+    },
+    "followUpAt": null,
+    "notes": [
+      {
+        "id": "matchnote-022-1",
+        "authorMatchmakerId": "mm-002",
+        "body": "Fictional demo note: discuss communication style, family expectations, and location flexibility.",
+        "createdAt": "2026-10-13T10:00:00+05:30"
+      }
+    ],
+    "statusHistory": [
+      {
+        "id": "event-022-1",
+        "fromStatus": null,
+        "toStatus": "SHORTLISTED",
+        "changedByMatchmakerId": "mm-002",
+        "note": "Candidate shortlisted for human review.",
+        "createdAt": "2026-10-12T10:00:00+05:30"
+      },
+      {
+        "id": "event-022-2",
+        "fromStatus": "SHORTLISTED",
+        "toStatus": "CLOSED",
+        "changedByMatchmakerId": "mm-002",
+        "note": "Demo status transition for workflow testing.",
+        "createdAt": "2026-10-13T10:00:00+05:30"
+      }
+    ],
+    "createdAt": "2026-10-12T10:00:00+05:30",
+    "updatedAt": "2026-10-13T10:00:00+05:30"
+  }
+]

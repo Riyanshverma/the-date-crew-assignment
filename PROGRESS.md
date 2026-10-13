@@ -5,32 +5,29 @@ Phase 2 (Visual shell and frontend demo login) completed on branch `phase-2-visu
 
 ## Phase 2 Execution Summary
 - **Work completed:**
-  - Configured complete design tokens and Tailwind v4 `@theme` in `client/src/styles.css` matching `design.md`.
+  - Configured design tokens and Tailwind v4 `@theme` in `client/src/styles.css` matching `design.md`.
   - Added button size variants (`default`, `sm`, `lg`, `icon`) to `client/src/components/ui/button.tsx`.
-  - Created frontend-only demo credentials constant in `client/src/features/auth/demo-credentials.ts` with accounts for Aarav Mehta (`demo-matchmaker-1`) and Mira Kapoor (`demo-matchmaker-2`).
-  - Implemented `AuthContext`, `AuthProvider`, `useAuth`, and route guards (`RequireAuth`, `RedirectIfAuth`) with session storage. No backend authentication endpoints were created.
-  - Built `LoginPage` with credential inputs, error alert on invalid inputs, and one-click demo login buttons.
-  - Built responsive `AppShell` with top header, 248px desktop sidebar, mobile drawer overlay (<640px), navigation links (`/dashboard`, `/customers`), active demo account indicator, and account switcher popover.
+  - Created frontend-only demo credentials constant in `client/src/features/auth/demo-credentials.ts` for Aarav Mehta (`demo-matchmaker-1`) and Mira Kapoor (`demo-matchmaker-2`).
+  - Simplified login: implemented direct credential check in `LoginPage` without Context or localStorage, and removed one-click login buttons.
+  - Simplified layout: implemented fixed desktop `AppShell` with 248px sidebar, removed mobile responsive drawer/toggle, removed account switcher, and placed a simple "Sign Out" button at the bottom of the sidebar.
   - Built `StatusBadge` supporting `ProfileStatus` (`ACTIVE`, `INCOMPLETE`) and all 11 pairing `MatchStatus` values with accessible text labels and icons.
   - Created reusable `LoadingState`, `EmptyState`, and `ErrorState` components.
-  - Built `DashboardPage` and `CustomersPage` visual shells with operational metrics, readiness/status filters, and preview queue.
+  - Built `DashboardPage` and `CustomersPage` desktop shells with operational metrics, readiness/status filters, and preview queue.
 - **Files changed:**
   - `client/src/styles.css` (modified: added `@theme` design tokens)
   - `client/src/components/ui/button.tsx` (modified: added size variants)
   - `client/src/features/auth/demo-credentials.ts` (created)
-  - `client/src/features/auth/AuthContext.tsx` (created)
-  - `client/src/features/auth/AuthGuard.tsx` (created)
-  - `client/src/features/auth/LoginPage.tsx` (created)
+  - `client/src/features/auth/LoginPage.tsx` (created: simplified form)
   - `client/src/components/common/StatusBadge.tsx` (created)
   - `client/src/components/common/FeedbackStates.tsx` (created)
-  - `client/src/components/layout/AppShell.tsx` (created)
+  - `client/src/components/layout/AppShell.tsx` (created: fixed desktop layout with bottom sign out)
   - `client/src/features/dashboard/DashboardPage.tsx` (created)
   - `client/src/features/customers/CustomersPage.tsx` (created)
-  - `client/src/App.tsx` (modified: wired routes and auth provider)
+  - `client/src/App.tsx` (modified: simple React state gate)
   - `PROGRESS.md` (updated)
 - **Commands / checks run:**
   - `npm run typecheck` — Passed (exit code 0 for client and server).
-  - `npm run build` — Passed (typecheck + vite build succeeded in 1.27s).
+  - `npm run build` — Passed (typecheck + vite build succeeded in 1.28s).
 - **Next Phase:** Phase 3 — JSON repositories and API.
 
 ## Decisions made

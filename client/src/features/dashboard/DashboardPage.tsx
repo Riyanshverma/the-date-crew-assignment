@@ -10,20 +10,23 @@ import {
   CalendarCheck2,
   Clock3
 } from "lucide-react";
-import { useAuth } from "@/features/auth/AuthContext";
+import type { DemoMatchmaker } from "@/features/auth/demo-credentials";
 import { ProfileStatusBadge, MatchStatusBadge } from "@/components/common/StatusBadge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export function DashboardPage() {
-  const { matchmaker } = useAuth();
+interface DashboardPageProps {
+  matchmaker: DemoMatchmaker;
+}
+
+export function DashboardPage({ matchmaker }: DashboardPageProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [readinessFilter, setReadinessFilter] = useState<string>("ALL");
 
   return (
     <div className="space-y-6">
       {/* Header Context Banner */}
-      <div className="bg-surface rounded-[11px] border border-border p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-surface rounded-[11px] border border-border p-6 shadow-xs flex items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-positive inline-block" />
@@ -32,7 +35,7 @@ export function DashboardPage() {
             </span>
           </div>
           <h2 className="text-xl font-[650] text-ink tracking-tight">
-            Welcome back, {matchmaker?.displayName}
+            Welcome back, {matchmaker.displayName}
           </h2>
           <p className="text-xs text-muted mt-1 max-w-2xl leading-relaxed">
             Manage your assigned relationship-ready clients, review deterministic compatibility scores,
@@ -50,8 +53,8 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* Operational Metric Highlights (Shell / Stage preview) */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* Operational Metric Highlights */}
+      <div className="grid grid-cols-4 gap-4">
         <div className="bg-surface rounded-[11px] border border-border p-4 shadow-xs">
           <div className="flex items-center justify-between text-muted mb-2">
             <span className="text-xs font-medium">Assigned Clients</span>
@@ -90,8 +93,8 @@ export function DashboardPage() {
       </div>
 
       {/* Search & Operational Filter Bar Shell */}
-      <div className="bg-surface rounded-[11px] border border-border p-4 shadow-xs flex flex-col md:flex-row items-center gap-3 justify-between">
-        <div className="relative w-full md:w-96">
+      <div className="bg-surface rounded-[11px] border border-border p-4 shadow-xs flex items-center gap-3 justify-between">
+        <div className="relative w-96">
           <Search className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
           <Input
             value={searchQuery}
@@ -101,7 +104,7 @@ export function DashboardPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full md:w-auto">
+        <div className="flex items-center gap-2">
           <Filter className="w-3.5 h-3.5 text-muted shrink-0" />
           <span className="text-xs font-medium text-muted shrink-0">Readiness:</span>
           <select
@@ -130,10 +133,10 @@ export function DashboardPage() {
           </span>
         </div>
 
-        {/* Demo Cards Grid */}
+        {/* Demo Cards List */}
         <div className="divide-y divide-border">
           {/* Example Row 1 */}
-          <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-surface-soft/40 transition-colors">
+          <div className="p-5 flex items-center justify-between gap-4 hover:bg-surface-soft/40 transition-colors">
             <div className="flex items-start gap-3.5">
               <div className="w-10 h-10 rounded-full bg-primary-soft text-primary font-semibold text-sm flex items-center justify-center shrink-0">
                 MD
@@ -147,7 +150,6 @@ export function DashboardPage() {
                 <div className="text-xs text-body mt-1">
                   Indore, Madhya Pradesh &bull; Never Married &bull; Design Lead
                 </div>
-                {/* Pairing counts demonstration */}
                 <div className="flex items-center gap-2 mt-2">
                   <span className="text-[11px] font-medium text-muted">Pairing activity:</span>
                   <MatchStatusBadge status="PROPOSAL_SHARED" />
@@ -156,7 +158,7 @@ export function DashboardPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+            <div className="flex items-center gap-2 shrink-0">
               <Link to="/customers">
                 <Button variant="outline" size="sm" className="h-8 text-xs">
                   View Profile
@@ -172,7 +174,7 @@ export function DashboardPage() {
           </div>
 
           {/* Example Row 2 */}
-          <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-surface-soft/40 transition-colors">
+          <div className="p-5 flex items-center justify-between gap-4 hover:bg-surface-soft/40 transition-colors">
             <div className="flex items-start gap-3.5">
               <div className="w-10 h-10 rounded-full bg-primary-soft text-primary font-semibold text-sm flex items-center justify-center shrink-0">
                 AS
@@ -194,7 +196,7 @@ export function DashboardPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+            <div className="flex items-center gap-2 shrink-0">
               <Link to="/customers">
                 <Button variant="outline" size="sm" className="h-8 text-xs">
                   View Profile
@@ -210,7 +212,7 @@ export function DashboardPage() {
           </div>
 
           {/* Example Row 3 (Incomplete Profile Demo) */}
-          <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-surface-soft/40 transition-colors">
+          <div className="p-5 flex items-center justify-between gap-4 hover:bg-surface-soft/40 transition-colors">
             <div className="flex items-start gap-3.5">
               <div className="w-10 h-10 rounded-full bg-surface-soft text-muted font-semibold text-sm flex items-center justify-center shrink-0">
                 RK
@@ -230,7 +232,7 @@ export function DashboardPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+            <div className="flex items-center gap-2 shrink-0">
               <Link to="/customers">
                 <Button variant="outline" size="sm" className="h-8 text-xs">
                   View Profile

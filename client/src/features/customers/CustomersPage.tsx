@@ -1,23 +1,26 @@
 import { useState } from "react";
-import { Search, Filter, Sparkles, UserCheck, Eye } from "lucide-react";
-import { useAuth } from "@/features/auth/AuthContext";
+import { Search, Filter, Sparkles, Eye } from "lucide-react";
+import type { DemoMatchmaker } from "@/features/auth/demo-credentials";
 import { ProfileStatusBadge, MatchStatusBadge } from "@/components/common/StatusBadge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export function CustomersPage() {
-  const { matchmaker } = useAuth();
+interface CustomersPageProps {
+  matchmaker: DemoMatchmaker;
+}
+
+export function CustomersPage({ matchmaker }: CustomersPageProps) {
   const [search, setSearch] = useState("");
   const [genderFilter, setGenderFilter] = useState("ALL");
 
   return (
     <div className="space-y-6">
       {/* Directory Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-[650] text-ink tracking-tight">Customer Directory</h2>
           <p className="text-xs text-muted mt-0.5">
-            Profiles assigned to {matchmaker?.displayName} ({matchmaker?.id}).
+            Profiles assigned to {matchmaker.displayName} ({matchmaker.id}).
           </p>
         </div>
 
@@ -30,8 +33,8 @@ export function CustomersPage() {
       </div>
 
       {/* Filter and Search Controls */}
-      <div className="bg-surface rounded-[11px] border border-border p-4 shadow-xs flex flex-col md:flex-row items-center gap-3 justify-between">
-        <div className="relative w-full md:w-80">
+      <div className="bg-surface rounded-[11px] border border-border p-4 shadow-xs flex items-center gap-3 justify-between">
+        <div className="relative w-80">
           <Search className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
           <Input
             value={search}
@@ -41,25 +44,23 @@ export function CustomersPage() {
           />
         </div>
 
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <div className="flex items-center gap-2">
-            <Filter className="w-3.5 h-3.5 text-muted shrink-0" />
-            <span className="text-xs text-muted font-medium">Gender:</span>
-            <select
-              value={genderFilter}
-              onChange={(e) => setGenderFilter(e.target.value)}
-              className="h-9 rounded-[7px] border border-border-strong bg-surface px-2.5 text-xs text-ink"
-            >
-              <option value="ALL">All Genders</option>
-              <option value="MAN">Men</option>
-              <option value="WOMAN">Women</option>
-            </select>
-          </div>
+        <div className="flex items-center gap-2">
+          <Filter className="w-3.5 h-3.5 text-muted shrink-0" />
+          <span className="text-xs text-muted font-medium">Gender:</span>
+          <select
+            value={genderFilter}
+            onChange={(e) => setGenderFilter(e.target.value)}
+            className="h-9 rounded-[7px] border border-border-strong bg-surface px-2.5 text-xs text-ink"
+          >
+            <option value="ALL">All Genders</option>
+            <option value="MAN">Men</option>
+            <option value="WOMAN">Women</option>
+          </select>
         </div>
       </div>
 
-      {/* Customer Cards Grid Demo Shell */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Customer Cards Grid */}
+      <div className="grid grid-cols-3 gap-4">
         {/* Card 1 */}
         <div className="bg-surface rounded-[11px] border border-border p-5 shadow-xs hover:border-primary-disabled transition-colors flex flex-col justify-between">
           <div>

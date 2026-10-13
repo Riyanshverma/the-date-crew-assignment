@@ -32292,9 +32292,16 @@
           "Build a business"
         ]
       },
-      "notes": [],
+      "notes": [
+        {
+          "id": "cn_4ac3c3fc",
+          "authorMatchmakerId": "mm-001",
+          "body": "This is a good guy",
+          "createdAt": "2026-10-13T17:22:10.150Z"
+        }
+      ],
       "createdAt": "2026-09-15T10:00:00+05:30",
-      "updatedAt": "2026-10-13T09:00:00+05:30"
+      "updatedAt": "2026-10-13T17:22:10.150Z"
     },
     "preferences": {
       "preferredAgeRange": {

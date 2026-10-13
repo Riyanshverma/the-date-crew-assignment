@@ -1,4 +1,4 @@
-import type { MatchStatus, ProfileStatus } from "../../../../shared/contracts";
+import type { MatchClassification, MatchStatus, ProfileStatus } from "../../../../shared/contracts";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Clock, PauseCircle, XCircle, ArrowRightCircle, Sparkles } from "lucide-react";
 
@@ -58,6 +58,34 @@ export function MatchStatusBadge({ status, className }: MatchStatusBadgeProps) {
   return (
     <Badge tone={config.tone} className={className}>
       <Icon className="w-3 h-3 mr-1 inline-block" />
+      {config.label}
+    </Badge>
+  );
+}
+
+interface MatchClassificationBadgeProps {
+  classification: MatchClassification;
+  className?: string;
+}
+
+const CLASSIFICATION_CONFIG: Record<
+  MatchClassification,
+  { label: string; tone: "primary" | "positive" | "warning" | "neutral" }
+> = {
+  TWO_WAY: { label: "Two-Way Fit", tone: "positive" },
+  PREFERRED: { label: "Preferred", tone: "positive" },
+  REVERSE: { label: "Reverse Fit", tone: "primary" },
+  BROADER: { label: "Broader Pool", tone: "warning" }
+};
+
+export function MatchClassificationBadge({ classification, className }: MatchClassificationBadgeProps) {
+  const config = CLASSIFICATION_CONFIG[classification] ?? {
+    label: classification,
+    tone: "neutral" as const
+  };
+
+  return (
+    <Badge tone={config.tone} className={className}>
       {config.label}
     </Badge>
   );

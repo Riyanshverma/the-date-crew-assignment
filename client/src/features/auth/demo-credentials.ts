@@ -31,6 +31,38 @@ export const DEMO_MATCHMAKERS: readonly DemoMatchmaker[] = [
     password: "password123",
     role: "Matchmaker",
     email: "mira.kapoor@example.test"
+  },
+  {
+    id: "mm-003",
+    username: "demo-matchmaker-3",
+    displayName: "Kabir Sharma",
+    password: "password123",
+    role: "Matchmaker",
+    email: "kabir.sharma@example.test"
+  },
+  {
+    id: "mm-004",
+    username: "demo-matchmaker-4",
+    displayName: "Ananya Rao",
+    password: "password123",
+    role: "Matchmaker",
+    email: "ananya.rao@example.test"
+  },
+  {
+    id: "mm-005",
+    username: "demo-matchmaker-5",
+    displayName: "Vihaan Sethi",
+    password: "password123",
+    role: "Matchmaker",
+    email: "vihaan.sethi@example.test"
+  },
+  {
+    id: "mm-006",
+    username: "demo-matchmaker-6",
+    displayName: "Ishita Nair",
+    password: "password123",
+    role: "Matchmaker",
+    email: "ishita.nair@example.test"
   }
 ] as const;
 

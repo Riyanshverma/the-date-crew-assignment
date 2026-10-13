@@ -1,5 +1,52 @@
 [
   {
+    "id": "match_a1615366",
+    "customerAId": "person-055",
+    "customerBId": "person-125",
+    "createdByMatchmakerId": "mm-001",
+    "status": "PROPOSAL_SHARED",
+    "classifications": [
+      "PREFERRED"
+    ],
+    "compatibilityScore": 60,
+    "customerPreferenceFit": 75,
+    "reversePreferenceFit": 75,
+    "scoreVersion": "mvp-v1",
+    "proposal": {
+      "sharedAt": "2026-10-13T16:58:10.059Z",
+      "sharedByMatchmakerId": "mm-001",
+      "mockMessage": "Demo-only proposal: please review this profile and share whether you would like an introduction."
+    },
+    "introduction": {
+      "arrangedAt": null,
+      "feedbackFromCustomerA": null,
+      "feedbackFromCustomerB": null,
+      "outcome": null
+    },
+    "followUpAt": null,
+    "notes": [],
+    "statusHistory": [
+      {
+        "id": "ev_ada13ff8",
+        "fromStatus": "SHORTLISTED",
+        "toStatus": "PROPOSAL_SHARED",
+        "changedByMatchmakerId": "mm-001",
+        "note": "Mock proposal shared with customer for review",
+        "createdAt": "2026-10-13T16:58:10.059Z"
+      },
+      {
+        "id": "ev_81b45425",
+        "fromStatus": null,
+        "toStatus": "SHORTLISTED",
+        "changedByMatchmakerId": "mm-001",
+        "note": "Pairing shortlisted",
+        "createdAt": "2026-10-13T16:58:10.031Z"
+      }
+    ],
+    "createdAt": "2026-10-13T16:58:10.031Z",
+    "updatedAt": "2026-10-13T16:58:10.059Z"
+  },
+  {
     "id": "match-002",
     "customerAId": "person-006",
     "customerBId": "person-090",
@@ -224,7 +271,7 @@
     "customerAId": "person-021",
     "customerBId": "person-125",
     "createdByMatchmakerId": "mm-001",
-    "status": "AWAITING_FEEDBACK",
+    "status": "IN_PROGRESS",
     "classifications": [
       "TWO_WAY",
       "BROADER",
@@ -256,6 +303,14 @@
     ],
     "statusHistory": [
       {
+        "id": "ev_473d3c0e",
+        "fromStatus": "AWAITING_FEEDBACK",
+        "toStatus": "IN_PROGRESS",
+        "changedByMatchmakerId": "mm-001",
+        "note": "Things are going good altogether.",
+        "createdAt": "2026-10-13T17:21:13.513Z"
+      },
+      {
         "id": "event-007-1",
         "fromStatus": null,
         "toStatus": "SHORTLISTED",
@@ -273,7 +328,7 @@
       }
     ],
     "createdAt": "2026-09-27T10:00:00+05:30",
-    "updatedAt": "2026-09-28T10:00:00+05:30"
+    "updatedAt": "2026-10-13T17:21:13.513Z"
   },
   {
     "id": "match-008",

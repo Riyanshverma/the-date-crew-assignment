@@ -26,12 +26,14 @@ import { formatEnumText, formatAnnualIncome, formatDate } from "@/lib/formatters
 import { ProfileStatusBadge, MatchStatusBadge } from "@/components/common/StatusBadge";
 import { LoadingState, ErrorState, EmptyState } from "@/components/common/FeedbackStates";
 import { Button } from "@/components/ui/button";
+import { MatchingRecommendationsView } from "@/features/matching/MatchingRecommendationsView";
+import { PairingHistoryView } from "@/features/matching/PairingHistoryView";
 
 interface CustomerDetailPageProps {
   matchmaker: DemoMatchmaker;
 }
 
-type DetailTab = "profile" | "preferences" | "history" | "notes";
+type DetailTab = "profile" | "preferences" | "matches" | "history" | "notes";
 
 export function CustomerDetailPage({ matchmaker }: CustomerDetailPageProps) {
   const { id } = useParams<{ id: string }>();
@@ -184,11 +186,11 @@ export function CustomerDetailPage({ matchmaker }: CustomerDetailPageProps) {
         {/* Action Button */}
         <div className="shrink-0">
           <Button
-            onClick={() => setSearchParams({ tab: "history" })}
+            onClick={() => setSearchParams({ tab: "matches" })}
             className="h-10 text-xs px-5 shadow-xs"
           >
             <Sparkles className="w-4 h-4 mr-2" />
-            Matchmaking & History ({matches.length})
+            Find Candidate Matches
           </Button>
         </div>
       </div>
@@ -217,6 +219,18 @@ export function CustomerDetailPage({ matchmaker }: CustomerDetailPageProps) {
         >
           <Heart className="w-3.5 h-3.5" />
           Partner Preferences
+        </button>
+
+        <button
+          onClick={() => setSearchParams({ tab: "matches" })}
+          className={`px-4 py-3 text-xs font-semibold flex items-center gap-2 border-b-2 transition-colors cursor-pointer ${
+            activeTab === "matches"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted hover:text-ink"
+          }`}
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          Candidate Matches
         </button>
 
         <button
@@ -587,98 +601,27 @@ export function CustomerDetailPage({ matchmaker }: CustomerDetailPageProps) {
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 3: PAIRING HISTORY */}
+      {/* TAB 3: CANDIDATE MATCHES / RECOMMENDATIONS */}
+      {/* ========================================================================= */}
+      {activeTab === "matches" && (
+        <MatchingRecommendationsView
+          customer={customer}
+          matches={matches}
+          matchmaker={matchmaker}
+          onMatchUpdated={loadData}
+        />
+      )}
+
+      {/* ========================================================================= */}
+      {/* TAB 4: PAIRING HISTORY */}
       {/* ========================================================================= */}
       {activeTab === "history" && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-ink">Candidate Pairings & Pipeline Stages</h3>
-            <span className="text-xs text-muted">
-              {matches.length} recorded pairings for this client
-            </span>
-          </div>
-
-          {matches.length === 0 ? (
-            <EmptyState
-              title="No pairings created yet"
-              description="This client has no existing match records. When you shortlist candidate profiles in Phase 5 & 6, they will appear here."
-            />
-          ) : (
-            <div className="space-y-3">
-              {matches.map((m) => {
-                const partnerId = m.customerAId === profile.id ? m.customerBId : m.customerAId;
-
-                return (
-                  <div
-                    key={m.id}
-                    className="bg-surface rounded-[11px] border border-border p-5 shadow-xs space-y-4"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="flex items-center gap-2.5">
-                          <span className="text-sm font-semibold text-ink">
-                            Pairing with Candidate: <span className="font-mono text-primary">{partnerId}</span>
-                          </span>
-                          <MatchStatusBadge status={m.status} />
-                          <span className="text-xs font-semibold text-primary bg-primary-soft px-2 py-0.5 rounded-md">
-                            {m.compatibilityScore}% Compatibility
-                          </span>
-                        </div>
-                        <p className="text-xs text-muted mt-1">
-                          Created {formatDate(m.createdAt)} by matchmaker {m.createdByMatchmakerId}
-                        </p>
-                      </div>
-
-                      {m.followUpAt && (
-                        <div className="text-right text-xs">
-                          <span className="text-muted block">Next Follow-Up:</span>
-                          <span className="font-medium text-warning flex items-center gap-1 justify-end">
-                            <Clock className="w-3.5 h-3.5" /> {formatDate(m.followUpAt)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Proposal Status if shared */}
-                    {m.proposal?.sharedAt && (
-                      <div className="p-3 rounded-[7px] bg-primary-soft/50 border border-primary/10 text-xs">
-                        <span className="font-semibold text-primary block mb-0.5">
-                          Mock Proposal Shared on {formatDate(m.proposal.sharedAt)}
-                        </span>
-                        <p className="text-body italic">"{m.proposal.mockMessage}"</p>
-                      </div>
-                    )}
-
-                    {/* Status History Events */}
-                    {m.statusHistory?.length > 0 && (
-                      <div className="pt-3 border-t border-border">
-                        <span className="text-[11px] font-semibold text-muted uppercase tracking-wider block mb-2">
-                          Pipeline Event History
-                        </span>
-                        <div className="space-y-2">
-                          {m.statusHistory.map((ev) => (
-                            <div key={ev.id} className="text-xs flex items-start gap-2 text-body">
-                              <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-                              <div>
-                                <span className="font-semibold text-ink">
-                                  {ev.fromStatus ? `${ev.fromStatus} → ` : ""}{ev.toStatus}
-                                </span>
-                                <span className="text-muted text-[11px] ml-2">
-                                  ({formatDate(ev.createdAt)} by {ev.changedByMatchmakerId})
-                                </span>
-                                {ev.note && <p className="text-muted text-[11px] mt-0.5">{ev.note}</p>}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+        <PairingHistoryView
+          matches={matches}
+          customer={customer}
+          matchmaker={matchmaker}
+          onMatchUpdated={loadData}
+        />
       )}
 
       {/* ========================================================================= */}

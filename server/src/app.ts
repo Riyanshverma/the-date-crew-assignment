@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,6 +8,15 @@ import type { HealthResponse } from "../../shared/contracts.js";
 import { apiErrorHandler, apiRouter } from "./routes/api.js";
 
 export const app = express();
+
+app.use(
+  cors({
+    origin: true, // Reflect request origin, allowing Vercel previews & production domains
+    credentials: true,
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  })
+);
 
 app.use(express.json({ limit: "32kb" }));
 

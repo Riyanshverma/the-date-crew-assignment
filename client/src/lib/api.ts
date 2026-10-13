@@ -6,6 +6,8 @@ import type {
   MatchingRecommendationsResponse
 } from "../../../shared/contracts";
 
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/+$/, "");
+
 export async function fetchCustomers(params?: {
   matchmakerId?: string;
   readiness?: string;
@@ -18,7 +20,7 @@ export async function fetchCustomers(params?: {
   if (params?.gender && params.gender !== "ALL") query.set("gender", params.gender);
   if (params?.search) query.set("search", params.search);
 
-  const res = await fetch(`/api/customers?${query.toString()}`);
+  const res = await fetch(`${API_BASE}/api/customers?${query.toString()}`);
   if (!res.ok) {
     throw new Error(`Failed to load customers (status ${res.status})`);
   }
@@ -26,7 +28,7 @@ export async function fetchCustomers(params?: {
 }
 
 export async function fetchCustomerById(id: string): Promise<CustomerRecord> {
-  const res = await fetch(`/api/customers/${id}`);
+  const res = await fetch(`${API_BASE}/api/customers/${id}`);
   if (!res.ok) {
     throw new Error(`Failed to load customer profile '${id}' (status ${res.status})`);
   }
@@ -38,7 +40,7 @@ export async function addCustomerNote(
   customerId: string,
   data: { authorMatchmakerId: string; body: string }
 ): Promise<CustomerNote> {
-  const res = await fetch(`/api/customers/${customerId}/notes`, {
+  const res = await fetch(`${API_BASE}/api/customers/${customerId}/notes`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
@@ -51,7 +53,7 @@ export async function addCustomerNote(
 
 // ! Test this route and functionality
 export async function fetchCustomerMatches(customerId: string): Promise<MatchRecord[]> {
-  const res = await fetch(`/api/customers/${customerId}/matches`);
+  const res = await fetch(`${API_BASE}/api/customers/${customerId}/matches`);
   if (!res.ok) {
     throw new Error(`Failed to load pairings for customer '${customerId}' (status ${res.status})`);
   }
@@ -61,7 +63,7 @@ export async function fetchCustomerMatches(customerId: string): Promise<MatchRec
 export async function fetchRecommendations(
   customerId: string
 ): Promise<MatchingRecommendationsResponse> {
-  const res = await fetch(`/api/customers/${customerId}/recommendations`);
+  const res = await fetch(`${API_BASE}/api/customers/${customerId}/recommendations`);
   if (!res.ok) {
     throw new Error(
       `Failed to load matching recommendations for customer '${customerId}' (status ${res.status})`
@@ -76,7 +78,7 @@ export async function createMatch(data: {
   createdByMatchmakerId: string;
   compatibilityScore?: number;
 }): Promise<MatchRecord> {
-  const res = await fetch("/api/matches", {
+  const res = await fetch(`${API_BASE}/api/matches`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
@@ -93,7 +95,7 @@ export async function shareMatchProposal(
   matchmakerId: string,
   mockMessage?: string
 ): Promise<MatchRecord> {
-  const res = await fetch(`/api/matches/${matchId}/share-proposal`, {
+  const res = await fetch(`${API_BASE}/api/matches/${matchId}/share-proposal`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ matchmakerId, mockMessage })
@@ -113,7 +115,7 @@ export async function updateMatchStatus(
     note?: string;
   }
 ): Promise<MatchRecord> {
-  const res = await fetch(`/api/matches/${matchId}/status`, {
+  const res = await fetch(`${API_BASE}/api/matches/${matchId}/status`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
@@ -132,7 +134,7 @@ export async function addMatchNote(
     body: string;
   }
 ): Promise<any> {
-  const res = await fetch(`/api/matches/${matchId}/notes`, {
+  const res = await fetch(`${API_BASE}/api/matches/${matchId}/notes`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
@@ -148,7 +150,7 @@ export async function updateMatchFollowUp(
   matchId: string,
   followUpAt: string | null
 ): Promise<MatchRecord> {
-  const res = await fetch(`/api/matches/${matchId}/follow-up`, {
+  const res = await fetch(`${API_BASE}/api/matches/${matchId}/follow-up`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ followUpAt })

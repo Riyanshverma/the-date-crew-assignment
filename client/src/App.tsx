@@ -5,6 +5,7 @@ import { LoginPage } from "./features/auth/LoginPage";
 import { AppShell } from "./components/layout/AppShell";
 import { DashboardPage } from "./features/dashboard/DashboardPage";
 import { CustomersPage } from "./features/customers/CustomersPage";
+import { CustomerDetailPage } from "./features/customers/CustomerDetailPage";
 
 export function App() {
   const [currentMatchmaker, setCurrentMatchmaker] = useState<DemoMatchmaker | null>(null);
@@ -38,6 +39,19 @@ export function App() {
             subtitle="Assigned clients, profile status, and pairing records"
           >
             <CustomersPage matchmaker={currentMatchmaker} />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/customers/:id"
+        element={
+          <AppShell
+            matchmaker={currentMatchmaker}
+            onLogout={() => setCurrentMatchmaker(null)}
+            title="Customer Profile"
+            subtitle="Detailed biodata, partner preferences, and pairing history"
+          >
+            <CustomerDetailPage matchmaker={currentMatchmaker} />
           </AppShell>
         }
       />

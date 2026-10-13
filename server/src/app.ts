@@ -1,4 +1,7 @@
 import express from "express";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import type { HealthResponse } from "../../shared/contracts.js";
 import { apiErrorHandler, apiRouter } from "./routes/api.js";
@@ -14,3 +17,15 @@ app.get("/api/health", (_request, response) => {
 
 app.use("/api", apiRouter);
 app.use(apiErrorHandler);
+
+// Serve built frontend assets in production or when client dist exists
+const currentDir = path.dirname(fileURLToPath(import.meta.url));
+const clientDistPath = path.resolve(currentDir, "../../dist/client");
+
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+  // Express 5 compatible SPA fallback
+  app.use((_req, res) => {
+    res.sendFile(path.join(clientDistPath, "index.html"));
+  });
+}

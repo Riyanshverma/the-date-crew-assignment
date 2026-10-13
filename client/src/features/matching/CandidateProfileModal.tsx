@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { X, User, Briefcase, Home, Heart, Sparkles, MapPin } from "lucide-react";
 import type { PersonProfile } from "../../../../shared/contracts";
 import { calculateAge } from "../../../../shared/contracts";
@@ -16,13 +17,34 @@ export function CandidateProfileModal({
   onClose,
   candidate
 }: CandidateProfileModalProps) {
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const age = calculateAge(candidate.dateOfBirth);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-scrim/50 backdrop-blur-xs">
-      <div className="bg-surface rounded-[11px] border border-border shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-scrim/50 backdrop-blur-xs"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="candidate-profile-modal-title"
+        className="bg-surface rounded-[11px] border border-border shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+      >
         {/* Header */}
         <div className="p-5 border-b border-border flex items-center justify-between shrink-0">
           <div className="flex items-center gap-4">
@@ -32,7 +54,7 @@ export function CandidateProfileModal({
             </div>
             <div>
               <div className="flex items-center gap-2.5">
-                <h3 className="text-base font-[650] text-ink leading-tight">
+                <h3 id="candidate-profile-modal-title" className="text-base font-[650] text-ink leading-tight">
                   {candidate.firstName} {candidate.lastName}
                 </h3>
                 <span className="text-xs text-muted">
@@ -55,6 +77,7 @@ export function CandidateProfileModal({
 
           <button
             onClick={onClose}
+            aria-label="Close candidate profile modal"
             className="text-muted hover:text-ink p-1.5 rounded-md transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sparkles, Send, AlertCircle, X, ShieldAlert } from "lucide-react";
 import type { PersonProfile } from "../../../../shared/contracts";
 import type { DemoMatchmaker } from "@/features/auth/demo-credentials";
@@ -32,6 +32,17 @@ export function SendMatchDialog({
   );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -69,8 +80,18 @@ export function SendMatchDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-scrim/50 backdrop-blur-xs">
-      <div className="bg-surface rounded-[11px] border border-border shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-scrim/50 backdrop-blur-xs"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="send-match-dialog-title"
+        className="bg-surface rounded-[11px] border border-border shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+      >
         {/* Header */}
         <div className="p-5 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -78,7 +99,9 @@ export function SendMatchDialog({
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-[650] text-ink leading-tight">Send Match Proposal</h3>
+              <h3 id="send-match-dialog-title" className="text-sm font-[650] text-ink leading-tight">
+                Send Match Proposal
+              </h3>
               <p className="text-[11px] text-muted leading-tight mt-0.5">
                 Prepare proposal for client review
               </p>
@@ -86,6 +109,7 @@ export function SendMatchDialog({
           </div>
           <button
             onClick={onClose}
+            aria-label="Close send match dialog"
             className="text-muted hover:text-ink p-1 rounded-md transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
@@ -137,10 +161,11 @@ export function SendMatchDialog({
 
           {/* Message field */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-ink block">
+            <label htmlFor="send-match-message" className="text-xs font-semibold text-ink block">
               Matchmaker Review Note / Introduction Pitch
             </label>
             <textarea
+              id="send-match-message"
               rows={3}
               required
               value={mockMessage}

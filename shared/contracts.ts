@@ -318,3 +318,40 @@ export function calculateAge(dateOfBirth: string | null | undefined): number | n
   }
   return age >= 0 ? age : null;
 }
+
+// ==========================================
+// Matching Engine Contracts (ARCHITECTURE.md Section 10)
+// ==========================================
+
+export interface PreferenceEvidence {
+  field: string;
+  label: string;
+  result: ComparisonResult;
+  customerValue: unknown;
+  candidateValue: unknown;
+  direction: "CUSTOMER_TO_CANDIDATE" | "CANDIDATE_TO_CUSTOMER";
+  importance: PreferenceImportance | null;
+  explanation: string;
+}
+
+export interface RankedCandidate {
+  candidate: PersonProfile;
+  rank: number;
+  score: number;
+  customerPreferenceFit: number;
+  reversePreferenceFit: number;
+  classifications: MatchClassification[];
+  matchedPreferences: PreferenceEvidence[];
+  differences: PreferenceEvidence[];
+  unknowns: PreferenceEvidence[];
+  scoreCoverage: number;
+}
+
+export interface MatchingRecommendationsResponse {
+  customerId: string;
+  customerName: string;
+  strategy: "MALE_STRATEGY" | "FEMALE_STRATEGY";
+  totalEvaluated: number;
+  totalEligible: number;
+  candidates: RankedCandidate[];
+}

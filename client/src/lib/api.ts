@@ -2,7 +2,8 @@ import type {
   CustomerNote,
   CustomerRecord,
   CustomerSummary,
-  MatchRecord
+  MatchRecord,
+  MatchingRecommendationsResponse
 } from "../../../shared/contracts";
 
 export async function fetchCustomers(params?: {
@@ -53,6 +54,18 @@ export async function fetchCustomerMatches(customerId: string): Promise<MatchRec
   const res = await fetch(`/api/customers/${customerId}/matches`);
   if (!res.ok) {
     throw new Error(`Failed to load pairings for customer '${customerId}' (status ${res.status})`);
+  }
+  return res.json();
+}
+
+export async function fetchRecommendations(
+  customerId: string
+): Promise<MatchingRecommendationsResponse> {
+  const res = await fetch(`/api/customers/${customerId}/recommendations`);
+  if (!res.ok) {
+    throw new Error(
+      `Failed to load matching recommendations for customer '${customerId}' (status ${res.status})`
+    );
   }
   return res.json();
 }

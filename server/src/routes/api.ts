@@ -2,7 +2,8 @@ import { Router, type ErrorRequestHandler } from "express";
 import {
   getCustomersSummary,
   getCustomerById,
-  addCustomerNote
+  addCustomerNote,
+  getCustomerRecommendations
 } from "../repositories/customer-repository.js";
 import {
   getMatchesByCustomerId,
@@ -90,6 +91,20 @@ apiRouter.get("/customers/:id/matches", async (req, res, next) => {
   try {
     const matches = await getMatchesByCustomerId(req.params.id);
     res.json(matches);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/customers/:id/recommendations - Generate ranked matching candidates
+apiRouter.get("/customers/:id/recommendations", async (req, res, next) => {
+  try {
+    const recommendations = await getCustomerRecommendations(req.params.id);
+    if (!recommendations) {
+      res.status(404).json({ error: `Customer '${req.params.id}' not found` });
+      return;
+    }
+    res.json(recommendations);
   } catch (err) {
     next(err);
   }

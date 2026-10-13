@@ -1,46 +1,56 @@
 # Progress
 
 ## Current stage
-Phase 4 (Dashboard and customer detail) completed on branch `phase-4-dashboard-customer-detail`.
+Phase 5 (Matching engine) completed on branch `phase-5-matching-engine`.
 
-## Phase 4 Execution Summary
+## Phase 5 Execution Summary
 - **Work completed:**
-  - Implemented centralized frontend API client `client/src/lib/api.ts` connecting the UI to Express endpoints (`GET /api/customers`, `GET /api/customers/:id`, `POST /api/customers/:id/notes`, `GET /api/customers/:id/matches`).
-  - Created formatting utilities in `client/src/lib/formatters.ts` for clean enum rendering, Indian numbering format for annual income, and localized dates. Unknown and missing values consistently render as `"Not specified"` rather than becoming zero, false, or hidden.
-  - Refactored `DashboardPage.tsx` from static placeholders to live operational queue:
-    - Metrics derived from live client data (Assigned clients, Active ready, Incomplete profiles, Active pairings in pipeline).
-    - Client queue list displaying derived age, city, marital status, profile readiness badge, and individual pairing status badges.
-    - Multiple match statuses can coexist for a single client (e.g., `person-076` coexists with `ON_HOLD` and `DECLINED`).
-    - Search by client name, city, and profession, plus readiness filtering.
-  - Refactored `CustomersPage.tsx` with live customer directory:
-    - Directory grid with profile readiness badges, contact basics, profession, and pairing activity badges.
-    - Scope toggle between "All Directory" (110 clients) and "Assigned to Me" (current matchmaker).
-    - Gender filter ("All", "Men", "Women"), readiness filter ("All", "Active", "Incomplete"), and keyword search.
-  - Built comprehensive `CustomerDetailPage.tsx` (`/customers/:id`) with 4 distinct tabs:
-    - **Personal & Biodata Tab:** Personal details, height, contact, education, career, family structure, religion/community, relationship timeline, lifestyle habits, declared core values, and hobbies.
-    - **Partner Preferences Tab:** Target age, height, and income ranges with client importance levels, preferred locations, preferred marital statuses, desired partner core values, and explicit dealbreakers.
-    - **Pairing History Tab:** Candidate pairing cards showing candidate ID, compatibility score, current pairing status, next follow-up dates, mock proposal status, and full pipeline event history.
-    - **Consultation Notes Tab:** Displays matchmaker consultation notes with author and timestamp, plus an active form to submit and immediately persist new consultation notes via `POST /api/customers/:id/notes`.
-  - Wired `/customers/:id` route into `client/src/App.tsx`.
+  - Implemented dedicated scoring configuration in `server/src/engine/weights.ts` declaring `MALE_STRATEGY_WEIGHTS` and `FEMALE_STRATEGY_WEIGHTS` under `scoreVersion: "mvp-v1"` (both strategies sum to 100%).
+  - Implemented `server/src/engine/eligibility.ts`:
+    - Enforces legal marriage age in India (men >= 21, women >= 18).
+    - Requires active profile readiness (`ACTIVE`).
+    - Excludes non-matching gender, self, and existing pairings (preventing duplicate matches).
+    - Applies explicit customer dealbreakers and reciprocal candidate dealbreakers BEFORE scoring (smoking, diet, marital status, children stance, age, height, location, religion).
+    - Unknown or unstated data (`PREFERS_NOT_TO_SAY`) is never treated as a mismatch or dealbreaker violation.
+  - Implemented `server/src/engine/comparators.ts`:
+    - Detailed directional comparisons producing structured `PreferenceEvidence`.
+    - Handles Age, Height, Income, and soft Male Directional Signals (younger, lower income, shorter) which respect explicit preferences.
+    - Evaluates Location, Marital Status, Religion, Community, Education, Profession, Relationship Goals, Children, Relocation, Core Values overlap, Hobbies overlap, and Lifestyle habits.
+    - Formats human-readable, deterministic explanation templates for matchmaker transparency.
+  - Implemented `server/src/engine/matching-engine.ts`:
+    - Runs two-way comparisons: Customer -> Candidate and Candidate -> Customer.
+    - Avoids double-counting: dedicated factor categories are strictly excluded from general preference fit buckets for both strategies.
+    - Renormalizes overall score across available weighted categories: `overallScore = sum(w_c * categoryFit(c)) / availableWeight`.
+    - Computes `scoreCoverage` based on available weighted categories.
+    - Derives match classification labels (`PREFERRED`, `BROADER`, `REVERSE`, `TWO_WAY`).
+    - Partitions evidence into `matchedPreferences`, `differences`, and `unknowns`.
+    - Sorts deterministically with 2-point margin tie-breaking: prefers `TWO_WAY`, then higher customer preference satisfaction, then stable candidate ID.
+  - Added REST endpoint `GET /api/customers/:id/recommendations` in `server/src/routes/api.ts` wired through `customer-repository.ts`.
+  - Added matching contracts (`PreferenceEvidence`, `RankedCandidate`, `MatchingRecommendationsResponse`) to `shared/contracts.ts` and `fetchRecommendations` client helper in `client/src/lib/api.ts`.
 - **Files changed:**
-  - `client/src/lib/api.ts` (created)
-  - `client/src/lib/formatters.ts` (created)
-  - `client/src/features/dashboard/DashboardPage.tsx` (updated)
-  - `client/src/features/customers/CustomersPage.tsx` (updated)
-  - `client/src/features/customers/CustomerDetailPage.tsx` (created)
-  - `client/src/App.tsx` (updated with detail route)
+  - `shared/contracts.ts` (added matching types)
+  - `server/src/engine/weights.ts` (created)
+  - `server/src/engine/eligibility.ts` (created)
+  - `server/src/engine/comparators.ts` (created)
+  - `server/src/engine/matching-engine.ts` (created)
+  - `server/src/repositories/customer-repository.ts` (wired recommendations)
+  - `server/src/routes/api.ts` (added GET /api/customers/:id/recommendations)
+  - `client/src/lib/api.ts` (added fetchRecommendations)
   - `PROGRESS.md` (updated)
 - **Commands / checks run:**
-  - `npm run typecheck` — Passed with exit code 0 (both client and server TypeScript compile cleanly).
-  - `npm run build` — Passed in 1.25s (Vite production bundle built cleanly).
-  - Live API integration verification:
-    - `GET /api/customers?matchmakerId=mm-001` (retrieves assigned queue with age derived from DOB).
-    - `GET /api/customers/person-001` (retrieves full biodata dossier and partner preferences).
-    - `POST /api/customers/person-001/notes` (persists new consultation note safely into JSON).
-    - `GET /api/customers/person-006/matches` (retrieves candidate pairings and pipeline history).
-    - Multiple match statuses verified coexisting on individual customers (`person-076`, `person-090`, `person-097`, `person-118`, `person-125`, `person-139`).
-    - Profile readiness (`ACTIVE` vs `INCOMPLETE`) verified separate from pairing status.
-- **Next Phase:** Phase 5 — Matching engine.
+  - `npm run typecheck` — Passed with 0 errors.
+  - `npm run build` — Passed in 1.23s.
+  - Manual verification scenarios checked:
+    - **Dealbreaker always excludes:** Confirmed candidates with dealbreaker violations are excluded before scoring.
+    - **Broader never bypasses dealbreakers:** Confirmed `BROADER` candidates satisfy all dealbreakers and only miss flexible preferences.
+    - **One-way and two-way labels:** Verified `PREFERRED`, `REVERSE`, and `TWO_WAY` labels generate and coexist accurately.
+    - **Missing data handling:** Confirmed missing fields yield `UNKNOWN`, excluded from numerator/denominator, with score coverage reporting available data.
+    - **Male directional signals:** Verified younger/lower-income/shorter soft ranking signals operate without overriding explicit preferences.
+    - **Female strategy:** Verified emphasis on career (12%), values (10%), location/relocation (8%), and education (5%).
+    - **Duplicate pair prevention:** Existing pairings between customer and candidate excluded from new recommendations.
+    - **Deterministic ordering:** Verified deterministic tie-breaking within 2 points.
+    - **Live REST API check:** Tested `GET /api/customers/person-001/recommendations` and `GET /api/customers/person-013/recommendations`.
+- **Next Phase:** Phase 6 — Candidate UI and match actions.
 
 ## Decisions made
 - React + Vite + TypeScript, shadcn/ui, Node + Express + TypeScript, JSON data.
@@ -74,7 +84,7 @@ Dedicated factors are excluded from general preference-fit buckets to avoid doub
 - [x] Express API and JSON repositories (Phase 3).
 - [x] Frontend-only demo login gate (Phase 2; no backend auth endpoints).
 - [x] Customer dashboard/detail (Phase 4).
-- [ ] Matching engine and candidate result UI (Phase 5 / Phase 6).
+- [x] Matching engine and candidate result UI (Phase 5 engine complete).
 - [ ] Match statuses, notes, follow-ups and mock proposal (Phase 6).
 - [x] Generate 140 fictional profiles, two matchmakers, and example pairings (file created).
 - [ ] Integrate and validate the existing JSON dataset in the repository (Phase 7).
@@ -82,4 +92,4 @@ Dedicated factors are excluded from general preference-fit buckets to avoid doub
 - [ ] Deployment and submission write-up (Phase 9).
 
 ## Next action
-Wait for explicit approval to begin Phase 5: Matching engine per `IMPLEMENTATION_PLAN.md`.
+Wait for explicit approval to begin Phase 6: Candidate UI and match actions per `IMPLEMENTATION_PLAN.md`.

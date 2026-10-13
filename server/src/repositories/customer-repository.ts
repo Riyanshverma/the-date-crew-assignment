@@ -4,9 +4,11 @@ import {
   type CustomerNote,
   type CustomerRecord,
   type CustomerSummary,
-  type MatchStatus
+  type MatchStatus,
+  type MatchingRecommendationsResponse
 } from "../../../shared/contracts.js";
 import { readCustomers, readMatches, writeCustomers } from "./storage.js";
+import { runMatchingEngine } from "../engine/matching-engine.js";
 
 export interface CustomerFilter {
   matchmakerId?: string;
@@ -108,3 +110,17 @@ export async function addCustomerNote(
   await writeCustomers(customers);
   return newNote;
 }
+
+export async function getCustomerRecommendations(
+  customerId: string
+): Promise<MatchingRecommendationsResponse | null> {
+  const [customers, matches] = await Promise.all([readCustomers(), readMatches()]);
+  const customer = customers.find((c) => c.profile.id === customerId);
+
+  if (!customer) {
+    return null;
+  }
+
+  return runMatchingEngine(customer, customers, matches);
+}
+

@@ -1,107 +1,310 @@
-# Architecture and Data Model
+# The Date Crew — Technical Architecture Document
 
-## 1. Runtime architecture
+This document details the system design, data contracts, deterministic matching engine, AI co-pilot pipeline, and deployment topology of **The Date Crew (TDC) Matchmaker Dashboard**.
 
+---
+
+## 1. High-Level System Architecture
+
+The application is architected as a decoupled, dual-tier web system with privacy-preserving external AI integration and atomic server-side JSON persistence.
+
+```mermaid
+flowchart TD
+    subgraph Client ["Frontend Tier (Vercel)"]
+        SPA["React 19 + Vite Single Page Application"]
+        Router["React Router v7 (Client-Side Routing)"]
+        AuthContext["Frontend Session Gate (Demo Matchmakers)"]
+        DossierView["Customer Dossier & Notes UI"]
+        MatchEngineUI["Recommendation Queue & Candidate Cards"]
+        PitchModal["Send Match Proposal Dialog"]
+        SPA --> Router
+        Router --> AuthContext
+        AuthContext --> DossierView
+        AuthContext --> MatchEngineUI
+        MatchEngineUI --> PitchModal
+    end
+
+    subgraph Server ["Backend API Tier (Render)"]
+        ExpressApp["Express 5 HTTP Server"]
+        CORS["CORS Middleware (Credentials & Origin Reflection)"]
+        APIRouter["REST API Router (/api)"]
+        MatchingEngine["Deterministic Matching Engine (mvp-v1)"]
+        SemanticService["AI Semantic Assistant & Pitch Service"]
+        StorageEngine["Atomic File Storage Engine (Lock-safe JSON)"]
+        
+        ExpressApp --> CORS
+        CORS --> APIRouter
+        APIRouter --> MatchingEngine
+        APIRouter --> SemanticService
+        APIRouter --> StorageEngine
+    end
+
+    subgraph AIGateway ["AI Model Tier (OpenRouter)"]
+        OpenRouterAPI["OpenRouter SDK Gateway"]
+        Nemotron["nvidia/nemotron-3.5-lightning:free"]
+        OpenRouterAPI --> Nemotron
+    end
+
+    subgraph Persistence ["Persistence Tier (Server-Side Storage)"]
+        CustJSON[("customers.json (110 Indian Profiles)")]
+        MatchJSON[("matches.json (Pairings & Status Events)")]
+        MMJSON[("matchmakers.json (6 Matchmakers)")]
+        StorageEngine --> CustJSON
+        StorageEngine --> MatchJSON
+        StorageEngine --> MMJSON
+    end
+
+    Client -->|HTTPS / JSON REST API| Server
+    SemanticService -->|Anonymized Prompts (Zero PII)| OpenRouterAPI
+```
+
+---
+
+## 2. Frontend Architecture (React 19 + Vite)
+
+### Component Hierarchy
 ```text
-React + Vite + TypeScript
-  Login / Dashboard / Customer detail / Ranked candidates / Match history
-                 | HTTP JSON API
-Node.js + Express + TypeScript
-  Auth + access middleware + routes + services + matching engine
-                 | repositories
-Server-side JSON: matchmakers.json, customers.json, matches.json
+client/src/
+├── app/
+│   └── App.tsx                   # Top-level provider, session state, toast context
+├── components/
+│   ├── layout/
+│   │   ├── AppShell.tsx          # Responsive navigation shell with mobile drawer
+│   │   ├── Header.tsx            # Matchmaker profile, notification bell, sign out
+│   │   └── Sidebar.tsx           # Dashboard & Customer portfolio links
+│   └── ui/                       # Accessible UI primitives (Button, Dialog, Badge, Input)
+├── features/
+│   ├── auth/
+│   │   ├── LoginPage.tsx         # Demo login gate
+│   │   └── demo-credentials.ts  # Hardcoded credentials for local demonstration
+│   ├── customers/
+│   │   ├── CustomersPage.tsx     # Portfolio table with instant search and filters
+│   │   └── CustomerDetailPage.tsx# Comprehensive client dossier & private notes
+│   ├── dashboard/
+│   │   └── DashboardPage.tsx     # Matchmaker KPIs, quick actions, operational queues
+│   └── matching/
+│       ├── MatchingRecommendationsView.tsx # Ranked recommendations list (<25ms load)
+│       ├── CandidateCard.tsx     # Structured evidence cards & on-demand AI button
+│       └── SendMatchDialog.tsx   # Proposal dialog with AI introduction pitch generator
+├── lib/
+│   ├── api.ts                    # Typed client API client targeting VITE_API_BASE_URL
+│   └── utils.ts                  # Tailwind class merging (clsx + twMerge)
+└── index.css                     # Tailwind CSS v4 design tokens (HSL palette)
 ```
 
-Frontend must not import private JSON data directly. All reads and mutations go through the API. Keep the matching engine in deterministic functions separate from Express handlers and UI components.
+### Key Frontend Architectural Decisions
+1. **Zero Client-Side Lag:** Initial candidate matching computes entirely on the backend in under 25ms. The UI renders immediately without blocking spinners.
+2. **Accessible Dialog Primitives:** Built with `@radix-ui/react-dialog` with proper ARIA attributes, focus trapping, and `Escape` key handlers.
+3. **Responsive Mobile Shell:** Adapts fluidly between desktop sidebar navigation and an accessible mobile backdrop drawer.
+4. **Tailored Design System:** Bespoke HSL color tokens (`bg-canvas`, `bg-surface`, `text-ink`, `primary`, `warning-soft`) designed for clarity, warmth, and high readability.
 
-Suggested folders (adapt to existing repository; do not scaffold blindly):
+---
+
+## 3. Backend Architecture (Node.js + Express 5)
+
+### Module Structure
 ```text
-client/src/{app,components,features/{auth,customers,matches,dashboard},lib,types}
-server/src/{routes,middleware,services/matching,repositories,schemas,types}
-server/data/{matchmakers,customers,matches}.json
+server/src/
+├── app.ts                        # Express application instance, CORS, static fallbacks
+├── index.ts                      # Server bootstrap, port binding (0.0.0.0)
+├── routes/
+│   └── api.ts                    # Express route controllers & centralized error handling
+├── engine/
+│   ├── matching-engine.ts        # Pure deterministic matching orchestrator
+│   ├── eligibility.ts            # Stage 1: Eligibility & hard dealbreaker gates
+│   ├── comparators.ts            # Stage 2: 17 scalar, range, and multi-select comparators
+│   ├── weights.ts                # Gender-specific weight vectors (MALE vs FEMALE)
+│   └── semantic-assistant.ts     # OpenRouter SDK integration & AI prompt pipeline
+├── repositories/
+│   ├── customer-repository.ts    # Customer queries, dossier mutations, private notes
+│   ├── match-repository.ts       # Pairing lifecycle, status transitions, follow-up dates
+│   └── storage.ts                # Atomic JSON file reader/writer with file locks
+└── data/
+    ├── customers.json            # 110 synthetically generated Indian client records
+    ├── matches.json              # Active and historical pairing records
+    └── matchmakers.json          # Matchmaker directory
 ```
 
-## 2. Enums and controlled options
+### REST API Specifications
 
-```ts
-type Gender = "MAN" | "WOMAN";
-type ProfileStatus = "INCOMPLETE" | "ACTIVE";
-type MaritalStatus = "NEVER_MARRIED" | "DIVORCED" | "WIDOWED" | "SEPARATED" | "OTHER";
-type EmploymentStatus = "EMPLOYED" | "SELF_EMPLOYED" | "BUSINESS_OWNER" | "STUDENT" | "UNEMPLOYED" | "HOMEMAKER" | "OTHER";
-type YesNoMaybe = "YES" | "NO" | "MAYBE";
-type ChildrenPreference = "WANTS_CHILDREN" | "DOES_NOT_WANT_CHILDREN" | "UNSURE" | "OPEN_TO_DISCUSSION";
-type ExistingChildrenPreference = "COMFORTABLE" | "NOT_COMFORTABLE" | "DEPENDS" | "NOT_APPLICABLE";
-type RelocationPreference = "WILL_RELOCATE" | "WILL_NOT_RELOCATE" | "DEPENDS" | "PREFERS_NOT_TO_SAY";
-type PetPreference = "COMFORTABLE" | "NOT_COMFORTABLE" | "DEPENDS" | "PREFERS_NOT_TO_SAY";
-type DietaryPreference = "VEGETARIAN" | "VEGAN" | "EGGETARIAN" | "NON_VEGETARIAN" | "JAIN" | "OTHER" | "PREFERS_NOT_TO_SAY";
-type SmokingPreference = "NON_SMOKER" | "OCCASIONAL" | "REGULAR" | "PREFERS_NOT_TO_SAY";
-type DrinkingPreference = "NON_DRINKER" | "OCCASIONAL" | "SOCIAL" | "REGULAR" | "PREFERS_NOT_TO_SAY";
-type RelationshipGoal = "MARRIAGE" | "LONG_TERM_RELATIONSHIP" | "OPEN_TO_DISCUSSION";
-type FamilyStructure = "NUCLEAR" | "JOINT" | "EXTENDED" | "OTHER" | "PREFERS_NOT_TO_SAY";
-type PreferenceImportance = "DEALBREAKER" | "IMPORTANT" | "FLEXIBLE";
-type ComparisonResult = "MATCH" | "PARTIAL_MATCH" | "NO_MATCH" | "UNKNOWN" | "NOT_APPLICABLE";
-type MatchStatus = "SHORTLISTED" | "PROPOSAL_SHARED" | "CLIENT_INTERESTED" | "AWAITING_OTHER_PERSON" | "BOTH_INTERESTED" | "INTRODUCTION_ARRANGED" | "AWAITING_FEEDBACK" | "IN_PROGRESS" | "DECLINED" | "ON_HOLD" | "CLOSED";
-type MatchClassification = "PREFERRED" | "BROADER" | "REVERSE" | "TWO_WAY";
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/health` | Health check endpoint returning `{ status: "ok" }` |
+| `GET` | `/api/customers` | List customer summaries with filtering (`gender`, `readiness`, `search`) |
+| `GET` | `/api/customers/:id` | Retrieve complete customer dossier (profile + partner preferences) |
+| `POST` | `/api/customers/:id/notes` | Add a customer-level matchmaker note |
+| `GET` | `/api/customers/:id/recommendations` | Compute instantaneous deterministic match recommendations |
+| `POST` | `/api/customers/:id/candidates/:candidateId/ai-analyze` | On-demand single candidate AI semantic synergy evaluation |
+| `POST` | `/api/customers/:id/candidates/:candidateId/ai-pitch` | On-demand AI introduction pitch generator for client review |
+| `GET` | `/api/customers/:id/matches` | Get pairing history and current stages for a customer |
+| `POST` | `/api/matches` | Create a new match pairing between two customers |
+| `GET` | `/api/matches/:id` | Get individual pairing record |
+| `PATCH` | `/api/matches/:id/status` | Advance pairing status with transition validation |
+| `POST` | `/api/matches/:id/notes` | Add pairing-specific matchmaker progress note |
+| `PATCH` | `/api/matches/:id/follow-up` | Schedule or update follow-up date |
+| `POST` | `/api/matches/:id/share-proposal` | Record mock proposal sharing (`PROPOSAL_SHARED`) |
+
+---
+
+## 4. Deterministic Matching Engine Specification (`mvp-v1`)
+
+The matching algorithm is completely deterministic, explainable, and decoupled from HTTP route handlers.
+
+```mermaid
+flowchart TD
+    Start["Input: Customer A Profile + Partner Preferences"] --> Step1
+    
+    subgraph Step1 ["Stage 1: Eligibility & Dealbreaker Gate (eligibility.ts)"]
+        E1["Filter Opposite Gender"]
+        E2["Filter Legal Marriage Age: Men >= 21, Women >= 18"]
+        E3["Filter Self & Non-Active Profiles"]
+        E4["Filter Duplicate or Concluded Pairings"]
+        E5["Evaluate Explicit Dealbreakers (Diet, Smoke, Drink, Kids, Location, Religion)"]
+        E1 --> E2 --> E3 --> E4 --> E5
+    end
+
+    Step1 -->|Pass Eligibility| Step2
+    Step1 -->|Fail Any Gate| Exclude["Exclude Immediately (Never Scored)"]
+
+    subgraph Step2 ["Stage 2: Directional Heuristic Scoring (comparators.ts & weights.ts)"]
+        C1["Customer -> Candidate (17 Forward Comparators)"]
+        C2["Candidate -> Customer (17 Reverse Comparators)"]
+        C3["Select Weight Strategy: MALE_STRATEGY vs FEMALE_STRATEGY"]
+        C4["Calculate Category Fits (0 - 100)"]
+        C5["Renormalize Over Populated Attributes (scoreCoverage %)"]
+        C1 --> C3
+        C2 --> C3
+        C3 --> C4 --> C5
+    end
+
+    Step2 --> Step3
+
+    subgraph Step3 ["Stage 3: Diagnostics & Classification"]
+        D1["Calculate Final Score: S_final = S_norm"]
+        D2["Assign Badges: TWO_WAY, PREFERRED, REVERSE, BROADER"]
+        D3["Partition Evidences: Matched Criteria, Differences, Unknowns"]
+        D1 --> D2 --> D3
+    end
+
+    Step3 --> Output["Output: RankedCandidate[] sorted by Score Descending"]
 ```
 
-Use stable enum values in storage; UI labels can be friendlier. Maintain one central option catalogue for hobbies, core values, languages, lifestyle, career categories, and other controlled fields.
+### Mathematical Scoring Formulation
 
-## 3. Selectable catalogues: core values and hobbies/interests
+For any eligible customer $A$ and candidate $B$:
 
-Keep these values in one shared catalogue module (for example `shared/catalogues.ts`) and use the same values in profile forms, partner-preference forms, seed data, and matching comparisons. Stored values should be stable strings; display labels can use the same human-readable text.
+1. **Directional Comparison Score:**
+   Each of the 17 criteria produces a comparison value:
+   $$\text{score}(c) = \begin{cases} 1.0 & \text{if MATCH} \\ 0.7 & \text{if PARTIAL\_MATCH} \\ 0.0 & \text{if NO\_MATCH} \\ \text{null} & \text{if UNKNOWN or NOT\_APPLICABLE} \end{cases}$$
 
-### Core values
+2. **Category Fit Calculation:**
+   For any category containing $N_{\text{usable}}$ criteria where $\text{score}(c) \neq \text{null}$:
+   $$\text{Fit}_{\text{cat}} = \left( \frac{1}{N_{\text{usable}}} \sum_{i=1}^{N_{\text{usable}}} \text{score}(c_i) \right) \times 100$$
+   If $N_{\text{usable}} = 0$, $\text{Fit}_{\text{cat}} = \text{null}$ (category is marked unknown).
 
-```ts
-export const CORE_VALUE_OPTIONS = [
-  "Family-oriented", "Honesty", "Trust", "Respect", "Emotional availability",
-  "Empathy", "Kindness", "Loyalty", "Open communication", "Personal growth",
-  "Independence", "Stability", "Ambition", "Work-life balance",
-  "Equality in a relationship", "Shared responsibility", "Financial responsibility",
-  "Adventure", "Spirituality", "Community involvement", "Intellectual curiosity",
-  "Simplicity", "Compassion", "Patience", "Commitment", "Flexibility",
-  "Privacy", "Creativity"
-] as const;
+3. **Weight Renormalization:**
+   Let $W_{\text{cat}}$ be the configured weight of a category, and $K$ be the set of categories where $\text{Fit}_{\text{cat}} \neq \text{null}$:
+   $$\text{scoreCoverage} = \sum_{\text{cat} \in K} W_{\text{cat}}$$
+   $$\text{Final Compatibility Score} = \frac{\sum_{\text{cat} \in K} \left( \text{Fit}_{\text{cat}} \times W_{\text{cat}} \right)}{\text{scoreCoverage}}$$
+
+### Gender-Differentiated Weight Vectors
+
+To reflect documented patterns in Indian matchmaking without penalizing candidates with unstated preferences:
+
+| Category | Male Strategy Weight | Female Strategy Weight | Comparison Basis |
+|---|---:|---:|---|
+| **Forward Customer Preference Fit** | 30% | 30% | General customer preference satisfaction |
+| **Reverse Candidate Preference Fit** | 10% | 10% | Candidate reverse preference satisfaction |
+| **Relationship & Family Planning** | 20% | 20% | Relationship goal, children stance & timeline |
+| **Age Alignment** | 8% | — | Younger age preference (male strategy) |
+| **Income Alignment** | 7% | — | Lower income alignment (male strategy) |
+| **Height Alignment** | 5% | — | Shorter height alignment (male strategy) |
+| **Career & Education Alignment** | 5% | 12% | Designation, company, profession category |
+| **Education Tier** | — | 5% | Highest educational degree alignment |
+| **Core Values & Priorities** | 10% | 10% | Multi-select core value alignment |
+| **Location & Relocation** | — | 8% | City, state, and willingness to relocate |
+| **Lifestyle & Interests** | 5% | 5% | Diet, drinking, smoking, hobbies & pets |
+| **Total Weight** | **100%** | **100%** | Dedicated categories excluded from general fit |
+
+---
+
+## 5. Privacy-Preserving AI Architecture
+
+```mermaid
+flowchart LR
+    Raw["Raw Candidate & Customer Records"] --> Sanitize["Data Minimization Pipeline"]
+    
+    subgraph Sanitize ["Data Minimization (Strip PII)"]
+        direction TB
+        S1["Remove Names, Emails, Phone Numbers"]
+        S2["Remove Exact Ages & Dates of Birth"]
+        S3["Remove Photos & Personal Identifiers"]
+        S4["Retain Only Abstract Semantic Fields: Education, Career, Core Values, Hobbies"]
+    end
+
+    Sanitize --> Prompt["Strict Context-Rich JSON Prompt"]
+    Prompt --> Gateway["OpenRouter API Gateway"]
+    Gateway --> Model["nvidia/nemotron-3.5-lightning:free (Temp: 0.1)"]
+    Model --> Calibrated["Strict JSON Output: Scores, Explanations, Draft Pitches"]
+    Calibrated --> PostProcess["Post-Processor & Score Re-Ranker"]
 ```
 
-### Hobbies and interests
+### 1. On-Demand Candidate Semantic Analysis
+- **Trigger:** Matchmaker clicks `✨ AI Semantic Analysis` on a specific candidate card.
+- **Payload:** Anonymized Education level, Profession category, Core Values, and Hobbies.
+- **Output:** Validated JSON assigning 0.0 to 1.0 synergy scores with matchmaker-facing rationale:
+  - Career synergy (e.g. Sales $\leftrightarrow$ Business Owner)
+  - Education compatibility (e.g. Masters $\leftrightarrow$ Doctorate)
+  - Core values resonance (e.g. Family-oriented $\leftrightarrow$ Stability)
+  - Leisure pursuit synergy (e.g. Hiking $\leftrightarrow$ Nature Trips)
 
-```ts
-export const HOBBY_INTEREST_OPTIONS = {
-  Food: ["Cooking", "Trying new restaurants", "Cafés", "Baking"],
-  Travel: ["Domestic travel", "International travel", "Road trips", "Nature trips"],
-  Outdoors: ["Hiking", "Trekking", "Camping", "Gardening"],
-  Fitness: ["Gym", "Running", "Yoga", "Cycling", "Swimming", "Walking"],
-  Sports: ["Cricket", "Football", "Badminton", "Tennis", "Basketball"],
-  Arts: ["Photography", "Painting", "Drawing", "Music", "Dancing"],
-  Entertainment: ["Movies", "TV shows", "Documentaries", "Theatre"],
-  Reading: ["Fiction", "Non-fiction", "Poetry", "Biographies"],
-  Learning: ["Technology", "Science", "Languages", "History", "Personal development"],
-  Social: ["Meeting friends", "Hosting gatherings", "Volunteering"],
-  Lifestyle: ["Pets", "Fashion", "Home décor", "Exploring new places"],
-  Leisure: ["Board games", "Gaming", "Puzzles", "Podcasts"],
-  Culture: ["Museums", "Cultural events", "Festivals", "Heritage"],
-  Creativity: ["Writing", "Design", "Crafts", "Making things"]
-} as const;
+### 2. AI Introduction Pitch Generator
+- **Trigger:** Matchmaker clicks `✨ Draft AI Intro Pitch` inside the Send Match Proposal dialog.
+- **Context Synthesis:** Injects client desired preferences (desired relationship goals, core values, career fields, hobbies) alongside candidate background details into a boutique matchmaker prompt.
+- **Output:** A warm, empathetic 2–3 sentence introduction note addressing the client directly in a refined matchmaker voice.
+- **Safety:** The note is rendered into an editable textarea, ensuring the human matchmaker has full oversight to review, personalize, or adjust the draft before confirming.
+
+---
+
+## 6. Pairing Lifecycle State Machine
+
+Relationship stages belong strictly to individual match records (`MatchRecord`), ensuring that one customer's ongoing dialogue with Candidate A does not overwrite their relationship stage with Candidate B.
+
+```mermaid
+stateDiagram-v2
+    [*] --> SHORTLISTED: Candidate shortlisted by matchmaker
+    SHORTLISTED --> PROPOSAL_SHARED: Proposal recorded for client review
+    PROPOSAL_SHARED --> CLIENT_INTERESTED: Client expresses interest
+    PROPOSAL_SHARED --> DECLINED: Client declines proposal
+    CLIENT_INTERESTED --> AWAITING_OTHER_PERSON: Outreach sent to candidate
+    AWAITING_OTHER_PERSON --> BOTH_INTERESTED: Candidate consents to connect
+    AWAITING_OTHER_PERSON --> DECLINED: Candidate declines
+    BOTH_INTERESTED --> INTRODUCTION_ARRANGED: Matchmaker facilitates introduction
+    INTRODUCTION_ARRANGED --> AWAITING_FEEDBACK: Post-introduction check-in
+    AWAITING_FEEDBACK --> IN_PROGRESS: Ongoing communication
+    AWAITING_FEEDBACK --> CLOSED: Parted ways amicably
+    IN_PROGRESS --> CLOSED: Marriage or relationship concluded
+    SHORTLISTED --> ON_HOLD: Temporarily paused
+    ON_HOLD --> SHORTLISTED: Re-activated
 ```
 
-Profiles store selections in `relationship.coreValues` and `lifestyle.hobbiesInterests`; partner preferences store selected values in `coreValues` and `hobbiesInterests`. These are multi-select fields. Do not infer personality traits from selections; compare only declared values. Empty selections mean no recorded values, not that the person has no values or interests.
+---
 
-## 4. Person profile schema
+## 7. Data Models & Contracts (`shared/contracts.ts`)
 
-```ts
-interface PersonProfile {
+```typescript
+export interface PersonProfile {
   id: string;
   firstName: string;
   lastName: string;
-  gender: Gender;
-  dateOfBirth: string;                 // YYYY-MM-DD; age derived
-  profilePicture: string | null;       // local demo asset or null
-  profileStatus: ProfileStatus;
+  gender: "MAN" | "WOMAN";
+  dateOfBirth: string; // YYYY-MM-DD (Age derived dynamically)
+  profilePicture: string | null;
+  profileStatus: "INCOMPLETE" | "ACTIVE";
   assignedMatchmakerId: string;
   location: { country: string; state: string; city: string };
   heightCm: number;
-  maritalStatus: MaritalStatus;
+  maritalStatus: "NEVER_MARRIED" | "DIVORCED" | "WIDOWED" | "SEPARATED" | "OTHER";
   contact: { email: string; phone: string };
   languagesKnown: string[];
   education: {
@@ -111,342 +314,60 @@ interface PersonProfile {
     additionalQualifications: string[];
   };
   career: {
-    employmentStatus: EmploymentStatus;
+    employmentStatus: "EMPLOYED" | "SELF_EMPLOYED" | "BUSINESS_OWNER" | "STUDENT" | "UNEMPLOYED" | "HOMEMAKER" | "OTHER";
     company: string | null;
     designation: string | null;
     professionCategory: string;
     industry: string | null;
-    annualIncome: number | null;       // INR per year
+    annualIncome: number | null;
     currency: "INR";
     careerGoals: string[];
   };
   culturalBackground: { religion: string | null; community: string | null };
-  family: {
-    familyStructure: FamilyStructure | null;
-    siblings: number | null;
-    familyResponsibilities: string[];
-  };
-  familyPlanning: {
-    hasChildren: YesNoMaybe;
-    wantsChildren: ChildrenPreference;
-    opennessToPartnerWithChildren: ExistingChildrenPreference;
-    preferredTimeline: string | null;
-  };
-  relocation: { openToRelocate: YesNoMaybe; relocationPreferences: string[] };
-  lifestyle: {
-    openToPets: YesNoMaybe;
-    dietaryPreference: DietaryPreference;
-    smoking: SmokingPreference;
-    drinking: DrinkingPreference;
-    hobbiesInterests: string[];
-    lifestylePreferences: string[];
-  };
-  relationship: {
-    relationshipGoal: RelationshipGoal;
-    marriageTimeline: string | null;
-    relationshipPriorities: string[];
-    coreValues: string[];
-    expectationsAboutMarriedLife: string[];
-    personalGoals: string[];
-  };
+  family: { familyStructure: string | null; siblings: number | null; familyResponsibilities: string[] };
+  familyPlanning: { hasChildren: string; wantsChildren: string; opennessToPartnerWithChildren: string; preferredTimeline: string | null };
+  relocation: { openToRelocate: string; relocationPreferences: string[] };
+  lifestyle: { openToPets: string; dietaryPreference: string; smoking: string; drinking: string; hobbiesInterests: string[]; lifestylePreferences: string[] };
+  relationship: { relationshipGoal: string; marriageTimeline: string | null; relationshipPriorities: string[]; coreValues: string[]; expectationsAboutMarriedLife: string[]; personalGoals: string[] };
   notes: CustomerNote[];
   createdAt: string;
   updatedAt: string;
 }
-```
 
-Age is derived from DOB. `annualIncome` is numeric INR/year; null is unknown, not zero. Religion/community are voluntary and optional. Notes are never score inputs. Active means required fields/preferences are complete and approved, not identity verified.
-
-## 5. Partner preferences schema
-
-```ts
-interface RangePreference {
-  min: number | null;
-  max: number | null;
-  importance: PreferenceImportance;
-}
-interface MultiSelectPreference<T = string> {
-  values: T[];
-  importance: PreferenceImportance;
-  allowBroaderMatches: boolean;
-}
-interface ScalarPreference<T = string> {
-  value: T | null;
-  importance: PreferenceImportance;
-}
-interface PartnerPreferences {
-  preferredAgeRange: RangePreference;       // years
-  preferredHeightRange: RangePreference;    // cm
-  preferredLocations: MultiSelectPreference<string>;
-  preferredMaritalStatuses: MultiSelectPreference<MaritalStatus>;
-  preferredHighestEducation: MultiSelectPreference<string>;
-  preferredProfessions: MultiSelectPreference<string>;
-  preferredIndustries: MultiSelectPreference<string>;
-  preferredIncomeRange: RangePreference;    // INR/year
-  preferredReligions: MultiSelectPreference<string>;
-  preferredCommunities: MultiSelectPreference<string>;
-  preferredLanguages: MultiSelectPreference<string>;
-  childrenPreference: ScalarPreference<ChildrenPreference>;
-  existingChildrenPreference: ScalarPreference<ExistingChildrenPreference>;
-  familyPlanningTimeline: ScalarPreference<string>;
-  relocationPreference: ScalarPreference<RelocationPreference>;
-  preferredFamilyStructures: MultiSelectPreference<FamilyStructure>;
-  petPreference: ScalarPreference<PetPreference>;
-  dietaryPreference: MultiSelectPreference<DietaryPreference>;
-  smokingPreference: MultiSelectPreference<SmokingPreference>;
-  drinkingPreference: MultiSelectPreference<DrinkingPreference>;
-  relationshipGoals: MultiSelectPreference<RelationshipGoal>;
-  marriageTimeline: MultiSelectPreference<string>;
-  relationshipPriorities: MultiSelectPreference<string>;
-  coreValues: MultiSelectPreference<string>;
-  expectationsAboutMarriedLife: MultiSelectPreference<string>;
-  careerGoals: MultiSelectPreference<string>;
-  hobbiesInterests: MultiSelectPreference<string>;
-  lifestylePreferences: MultiSelectPreference<string>;
-  dealbreakers: string[];                   // derived summary; field importance is canonical
-  otherPreferences: string | null;          // display only, not scored
-  updatedAt: string;
-}
-```
-
-Preference meanings:
-- `DEALBREAKER`: violation excludes candidate.
-- `IMPORTANT`: strong score influence, not exclusion.
-- `FLEXIBLE`: softer influence; may be relaxed for broader results.
-- Missing data yields `UNKNOWN`, never automatic match/mismatch.
-- Avoid duplicate sources of truth: use each field's `importance` as canonical and derive `dealbreakers` where practical.
-- Free-text `otherPreferences` is not scored in this MVP.
-
-## 6. Matchmaker and notes
-
-```ts
-interface Matchmaker {
-  id: string;
-  displayName: string;
-  username: string;
-  passwordHash: string;
-  active: boolean;
-  createdAt: string;
-}
-interface CustomerNote {
-  id: string;
-  authorMatchmakerId: string;
-  body: string;
-  createdAt: string;
-  updatedAt?: string;
-}
-```
-
-Never store plaintext passwords or return password hashes. Seeded demo credentials may be documented after implementation.
-
-## 7. Match history schema
-
-```ts
-interface MatchStatusEvent {
-  id: string;
-  fromStatus: MatchStatus | null;
-  toStatus: MatchStatus;
-  changedByMatchmakerId: string;
-  note: string | null;
-  createdAt: string;
-}
-interface MatchNote {
-  id: string;
-  authorMatchmakerId: string;
-  body: string;
-  createdAt: string;
-}
-interface MatchRecord {
+export interface MatchRecord {
   id: string;
   customerAId: string;
-  customerBId: string;                // canonical pair order for duplicate detection
+  customerBId: string;
   createdByMatchmakerId: string;
   status: MatchStatus;
   classifications: MatchClassification[];
-  compatibilityScore: number;         // 0–100 heuristic
+  compatibilityScore: number;
   customerPreferenceFit: number;
   reversePreferenceFit: number;
-  scoreVersion: string;               // "mvp-v1"
-  proposal: {
-    sharedAt: string | null;
-    sharedByMatchmakerId: string | null;
-    mockMessage: string | null;
+  scoreVersion: "mvp-v1";
+  proposal?: {
+    sharedAt: string;
+    sharedByMatchmakerId: string;
+    mockMessage: string;
   };
-  introduction: {
+  introduction?: {
     arrangedAt: string | null;
     feedbackFromCustomerA: string | null;
     feedbackFromCustomerB: string | null;
     outcome: string | null;
   };
-  followUpAt: string | null;
+  followUpAt?: string | null;
   notes: MatchNote[];
   statusHistory: MatchStatusEvent[];
   createdAt: string;
   updatedAt: string;
 }
-interface CustomerRecord {
-  profile: PersonProfile;
-  preferences: PartnerPreferences;
-}
 ```
 
-Store each pairing as an individual record in `matches.json`; derive a customer's history by either participant ID. Status changes append history events. Customer-level notes and pairing-specific notes remain separate.
+---
 
-History policy:
-- No duplicate active pair.
-- Exclude previously declined pairings from normal recommendations.
-- On-hold pairings stay paused and do not reappear as new pairings.
-- Closed pairings are excluded by default.
-- Previously completed introductions are not automatically repeated.
-- Unrelated pair history does not change score.
-- `PROPOSAL_SHARED` records a mock proposal, not the other person's agreement.
-- Interest statuses are set by the matchmaker from human responses, never inferred from a score.
+## 8. Deployment & Infrastructure Topology
 
-## 8. Eligibility and matching pipeline
-
-1. Confirm selected customer is active.
-2. Load active candidate profiles.
-3. Exclude self, non-matching gender for the assignment's current binary pool, duplicate pairs, declined/on-hold/closed pairings per policy.
-4. Apply minimum legal age and explicit dealbreakers.
-5. Compare customer preferences against candidate profile and candidate preferences against customer profile.
-6. Produce `MATCH`, `PARTIAL_MATCH`, `NO_MATCH`, `UNKNOWN`, or `NOT_APPLICABLE` evidence.
-7. Derive labels, compute strategy-specific score, rank.
-8. Return profile basics, score, labels, matched preferences, reverse preferences, differences, unknowns, and score coverage.
-9. Matchmaker reviews and chooses the next action.
-
-Hard constraints are gates, not score penalties. Age, height, marital status, location, religion/community, children, income, or other preferences are hard only when explicitly marked `DEALBREAKER` (plus legal-age/basic eligibility rules). Assignment's male younger/lower-income/shorter signals are default ranking signals, not global hard constraints. Explicit customer preference takes precedence.
-
-### Match labels
-- `PREFERRED`: candidate satisfies the selected customer's applicable preferences.
-- `BROADER`: candidate passes hard constraints but falls outside flexible preferences.
-- `REVERSE`: selected customer satisfies candidate's applicable preferences.
-- `TWO_WAY`: both satisfy each other's applicable preferences.
-
-Labels can coexist. A broader candidate must never violate a hard constraint. For a directional label, do not call a candidate preferred when relevant information is too incomplete to justify the label. Define a consistent minimum information threshold in code.
-
-## 9. Scoring: `mvp-v1`
-
-All weights below are explicit initial heuristics, not scientifically validated. Score is a 0–100 ranking indicator, not probability of relationship success.
-
-For each category, compare structured options/ranges, map `MATCH=1`, `PARTIAL_MATCH=0.5`, `NO_MATCH=0`; exclude `UNKNOWN`/`NOT_APPLICABLE` from the denominator. Normalize category score to 0–100. If no usable data exists for a category, report unavailable and renormalize across available weighted categories or show coverage. Do not treat missing values as mismatches.
-
-Avoid double counting: general preference-fit buckets exclude relationship/family, values, and strategy-specific factors that have their own weights.
-
-### Fit and score formulas
-
-For each structured comparison, use `MATCH = 1.0`, `PARTIAL_MATCH = 0.5`, and `NO_MATCH = 0.0`. Exclude `UNKNOWN` and `NOT_APPLICABLE` from the numerator and denominator. A dealbreaker violation is excluded during eligibility and never reaches scoring.
-
-```text
-categoryFit(c) = 100 * sum(comparisonValue_i) / count(usableComparisons_i)
-availableWeight = sum(w_c for categories with a categoryFit)
-overallScore = sum(w_c * categoryFit(c)) / availableWeight
-scoreCoverage = 100 * availableWeight / sum(all configured weights)
-```
-
-A comparison is usable when its result is `MATCH`, `PARTIAL_MATCH`, or `NO_MATCH`. If a category has no usable comparisons, mark it unavailable rather than assigning zero. Round the displayed score to the nearest integer. If no weighted category has usable data, return `score = null` and `scoreCoverage = 0`; explain that information is insufficient instead of showing a fabricated zero. Unknown fields are not mismatches.
-
-Return `customerPreferenceFit` and `reversePreferenceFit` as separately normalized diagnostics over their own applicable comparisons. Do not add them a second time after their weighted categories have contributed to `overallScore`.
-
-**Directional comparison:** compare the selected customer's preferences against the candidate's profile for customer fit, and the candidate's preferences against the selected customer's profile for reverse fit. Keep profile values and partner preferences distinct.
-
-**Male-strategy assignment signals:** when both values are known, younger candidate = `MATCH`, older candidate = `NO_MATCH`, equal age = `PARTIAL_MATCH`; lower candidate income = `MATCH`, higher income = `NO_MATCH`, equal income = `PARTIAL_MATCH`; shorter candidate = `MATCH`, taller candidate = `NO_MATCH`, equal height = `PARTIAL_MATCH`. These are soft signals only. Explicit stated preferences take precedence, and these signals must not become hard constraints.
-
-**Avoid double counting:** general preference-fit buckets exclude relationship/family planning, values, age/income/height signals, career/education, location/relocation, and lifestyle/interests whenever the same data has a dedicated category in the chosen strategy.
-
-**Age calculation:** derive completed years from `dateOfBirth` relative to the current date; never store stale age in JSON.
-
-### Male-customer ranking
-| Category | Weight |
-|---|---:|
-| Customer general preference fit, excluding dedicated categories | 25% |
-| Candidate reverse general preference fit, excluding dedicated categories | 15% |
-| Relationship goals and family planning | 20% |
-| Younger-age alignment | 8% |
-| Lower-income alignment | 7% |
-| Shorter-height alignment | 5% |
-| Core values and relationship priorities | 10% |
-| Career and education alignment | 5% |
-| Lifestyle and interests | 5% |
-| **Total** | **100%** |
-
-Age/income/height signals favor younger/lower-income/shorter candidates by default to address the assignment. They remain soft ranking signals. Explicit stated preferences take precedence; do not automatically penalize an older, higher-income, or taller candidate if the customer intentionally prefers that.
-
-### Female-customer ranking
-| Category | Weight |
-|---|---:|
-| Customer general preference fit, excluding dedicated categories | 25% |
-| Candidate reverse general preference fit, excluding dedicated categories | 15% |
-| Relationship goals and family planning | 20% |
-| Professional and career compatibility | 12% |
-| Core values and relationship priorities | 10% |
-| Location and relocation compatibility | 8% |
-| Lifestyle and interests | 5% |
-| Education alignment | 5% |
-| **Total** | **100%** |
-
-Keep weights in one named configuration and store `scoreVersion: "mvp-v1"`. For both strategies, dedicated categories are excluded from general preference-fit aggregation.
-
-Sort by score descending; when scores are within 2 points, prefer two-way alignment, then higher satisfaction of `IMPORTANT` preferences, then stable ID. Do not add an unexplained two-way bonus because reverse fit already contributes to the score.
-
-## 10. Result contract
-
-```ts
-interface PreferenceEvidence {
-  field: string;
-  label: string;
-  result: ComparisonResult;
-  customerValue: unknown;
-  candidateValue: unknown;
-  direction: "CUSTOMER_TO_CANDIDATE" | "CANDIDATE_TO_CUSTOMER";
-  importance: PreferenceImportance | null;
-  explanation: string; // deterministic template, not LLM
-}
-interface RankedCandidate {
-  candidate: PersonProfile;
-  rank: number;
-  score: number;
-  customerPreferenceFit: number;
-  reversePreferenceFit: number;
-  classifications: MatchClassification[];
-  matchedPreferences: PreferenceEvidence[];
-  differences: PreferenceEvidence[];
-  unknowns: PreferenceEvidence[];
-  scoreCoverage: number;
-}
-```
-
-Return only fields needed for the current view; never expose auth fields or raw filesystem data.
-
-## 11. API sketch
-
-The MVP login is intentionally a **frontend-only demo gate** using hardcoded demo credentials. It is not real authentication and does not protect the API. Do not add auth/session endpoints for this phase.
-
-```text
-GET    /api/health
-GET    /api/customers
-GET    /api/customers/:customerId
-GET    /api/customers/:customerId/matches
-GET    /api/customers/:customerId/recommendations
-POST   /api/customers/:customerId/notes
-POST   /api/matches
-GET    /api/matches/:matchId
-PATCH  /api/matches/:matchId/status
-POST   /api/matches/:matchId/notes
-PATCH  /api/matches/:matchId/follow-up
-POST   /api/matches/:matchId/share-proposal
-```
-
-Frontend login behavior:
-- Keep the demo username/password in a clearly named frontend-only constant.
-- Compare credentials in the login form and store only a simple demo UI state.
-- Do not send credentials to Express or create `/api/auth/login`, `/api/auth/logout`, or `/api/auth/me`.
-- Document the demo credentials after implementation.
-- This is acceptable only for a local, fictional-data MVP. Anyone who can reach the API can call it directly; frontend gating is not authorization. Do not put real personal data on a public deployment. If public hosting requires access protection, ask the user before adding server-side authentication.
-
-Because the MVP has no authenticated server identity, `assignedMatchmakerId` is a data/UI filtering field, not a security boundary. Keep all data fictional. Validate route parameters, mutations, status transitions, and pairing consistency on the server.
-
-## 12. JSON persistence and privacy
-
-Files: `matchmakers.json`, `customers.json` (array of `{ profile, preferences }`), `matches.json`. Centralize reads/writes, validate data, serialize writes or use temp-file-and-rename to avoid partial files. Serverless filesystems may not persist changes; verify host persistence before deployment.
-
-Use fictional data, minimal API payloads, server-side input/status validation, and no external LLM calls in this phase. There are no password hashes or server-side authentication in this demo-only phase. Do not infer sensitive traits or use photos as matching features.
+- **Frontend Hosting (Vercel):** Single Page Application bundle built with Vite, served over worldwide edge CDN with client-side rewrite rules in `vercel.json`.
+- **Backend Hosting (Render):** Dockerized Node.js/Express service running on Render Free Tier with rolling zero-downtime updates and live health monitoring on `/api/health`.
+- **CORS Configuration:** Seamless cross-origin reflection allowing preview and production Vercel domains with full credential support.

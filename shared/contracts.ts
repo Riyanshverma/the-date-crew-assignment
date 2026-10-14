@@ -345,6 +345,12 @@ export interface RankedCandidate {
   differences: PreferenceEvidence[];
   unknowns: PreferenceEvidence[];
   scoreCoverage: number;
+  aiSemanticInsight?: {
+    model: string;
+    summary: string;
+    enhancedFields: string[];
+    rawScores?: Record<string, number>;
+  };
 }
 
 export interface MatchingRecommendationsResponse {

@@ -9,6 +9,7 @@ import {
 } from "../../../shared/contracts.js";
 import { readCustomers, readMatches, writeCustomers } from "./storage.js";
 import { runMatchingEngine } from "../engine/matching-engine.js";
+import { rerankTopCandidatesWithAI } from "../engine/semantic-assistant.js";
 
 export interface CustomerFilter {
   matchmakerId?: string;
@@ -121,6 +122,18 @@ export async function getCustomerRecommendations(
     return null;
   }
 
-  return runMatchingEngine(customer, customers, matches);
+  const deterministicResponse = runMatchingEngine(customer, customers, matches);
+
+  // Option B: AI Semantic Relevance Assistant (Top 5 re-ranking)
+  const rerankedCandidates = await rerankTopCandidatesWithAI(
+    customer,
+    deterministicResponse.candidates,
+    5
+  );
+
+  return {
+    ...deterministicResponse,
+    candidates: rerankedCandidates
+  };
 }
 

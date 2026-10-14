@@ -57,6 +57,38 @@ function computeCategoryFit(evidences: PreferenceEvidence[]): number | null {
 }
 
 /**
+ * Evaluates core values fit. If direct tag overlap yields 0%, but the couple
+ * has foundational alignment on relationship goals, children stance, and relocation,
+ * applies a baseline partial credit of 40% (0.4) rather than a complete 0% cliff.
+ */
+function computeCoreValuesFit(
+  coreValuesEvidence: PreferenceEvidence | undefined,
+  cMap: Map<string, PreferenceEvidence>
+): number | null {
+  const directFit = computeCategoryFit([coreValuesEvidence].filter(Boolean) as PreferenceEvidence[]);
+  if (directFit !== null && directFit > 0) {
+    return directFit;
+  }
+  if (directFit === 0) {
+    const relGoal = cMap.get("relationshipGoal")?.result;
+    const children = cMap.get("children")?.result;
+    const reloc = cMap.get("relocation")?.result;
+    const hasGoalAlign = relGoal === "MATCH" || relGoal === "PARTIAL_MATCH";
+    const hasFamilyAlign = children === "MATCH" || children === "PARTIAL_MATCH";
+    const hasRelocAlign = reloc === "MATCH" || reloc === "PARTIAL_MATCH";
+
+    if (hasGoalAlign && hasFamilyAlign && hasRelocAlign) {
+      if (coreValuesEvidence) {
+        coreValuesEvidence.result = "PARTIAL_MATCH";
+        coreValuesEvidence.explanation = `${coreValuesEvidence.explanation} (Foundational alignment on goals, family, and relocation applies 40% baseline credit).`;
+      }
+      return 40; // 0.4 baseline credit
+    }
+  }
+  return directFit;
+}
+
+/**
  * Calculates score percentage for an arbitrary list of evidences.
  */
 function computeAverageFit(evidences: PreferenceEvidence[]): number {
@@ -193,7 +225,7 @@ export function scoreCandidate(
     categoryFits.push({
       name: "coreValuesPriorities",
       weight: MALE_STRATEGY_WEIGHTS.coreValuesPriorities,
-      fit: computeCategoryFit([cMap.get("coreValues")!].filter(Boolean))
+      fit: computeCoreValuesFit(cMap.get("coreValues"), cMap)
     });
 
     // 8. Career and education (5%)
@@ -257,7 +289,7 @@ export function scoreCandidate(
     categoryFits.push({
       name: "coreValuesPriorities",
       weight: FEMALE_STRATEGY_WEIGHTS.coreValuesPriorities,
-      fit: computeCategoryFit([cMap.get("coreValues")!].filter(Boolean))
+      fit: computeCoreValuesFit(cMap.get("coreValues"), cMap)
     });
 
     // 6. Location and relocation compatibility (8%)

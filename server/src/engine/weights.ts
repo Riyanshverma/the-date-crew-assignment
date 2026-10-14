@@ -18,8 +18,8 @@ export interface CategoryWeightConfig {
 
 export const MALE_STRATEGY_WEIGHTS: Record<string, number> = {
   // General fits (excluding dedicated)
-  customerGeneralPreference: 25,
-  candidateReverseGeneralPreference: 15,
+  customerGeneralPreference: 30,
+  candidateReverseGeneralPreference: 10,
   // Dedicated categories
   relationshipGoalsFamily: 20,
   youngerAgeAlignment: 8,
@@ -32,8 +32,8 @@ export const MALE_STRATEGY_WEIGHTS: Record<string, number> = {
 
 export const FEMALE_STRATEGY_WEIGHTS: Record<string, number> = {
   // General fits (excluding dedicated)
-  customerGeneralPreference: 25,
-  candidateReverseGeneralPreference: 15,
+  customerGeneralPreference: 30,
+  candidateReverseGeneralPreference: 10,
   // Dedicated categories
   relationshipGoalsFamily: 20,
   professionalCareer: 12,
@@ -42,3 +42,4 @@ export const FEMALE_STRATEGY_WEIGHTS: Record<string, number> = {
   lifestyleInterests: 5,
   educationAlignment: 5
 };
+

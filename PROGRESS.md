@@ -60,7 +60,21 @@ Dedicated factors are excluded from general preference-fit buckets to avoid doub
 - [x] Generate fictional profiles, matchmakers, and example pairings (file created).
 - [x] Integrate and validate the existing JSON dataset in the repository (Phase 7).
 - [x] Deployment, responsiveness, accessibility, and documentation (Phase 9).
-- [ ] AI feature (Phase 8 — held per instruction).
+- [x] AI Semantic Relevance Assistant & Top-K Re-ranking (Phase 8).
+
+## Phase 8 AI Semantic Relevance Assistant Summary
+- **Work completed:**
+  - Implemented Option B Top-K Re-ranking in `server/src/engine/semantic-assistant.ts`.
+  - Integrated OpenRouter SDK (`@openrouter/sdk`) and native HTTP fallback targeting `nvidia/nemotron-3.5-lightning:free`.
+  - Non-streaming, zero-reasoning, low temperature (0.1) execution for fast, deterministic semantic scoring.
+  - Strict Data Minimization: Sends only anonymized comparison parameters (Education, Career, Core Values, Hobbies); zero PII, names, ages, or genders are transmitted.
+  - Re-ranks the Top 5 candidates, upgrading soft criteria synergy and recomputing compatibility scores with full transparency.
+  - Added frontend AI Semantic Insight cards (`CandidateCard.tsx`) with dynamic badge, model badge, elevated criteria tags, and natural language summary.
+  - Resilient graceful fallback: If `OPENROUTER_API_KEY` is unset or fails, system seamlessly operates on deterministic matching without errors.
+- **Commands / checks run:**
+  - `npm run typecheck` — Passed with 0 errors.
+  - `npm run build` — Built production client and server bundles cleanly.
 
 ## Next action
-Review live deployments and decide whether to implement Phase 8 (AI feature) or finalize the assignment submission.
+User to supply OpenRouter API key in `.env` to test live LLM semantic re-ranking, or finalize assignment submission write-up.
+

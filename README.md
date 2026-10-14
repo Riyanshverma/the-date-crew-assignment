@@ -53,3 +53,16 @@ Matching is completely deterministic, explainable, and separated from Express ro
 - [x] Validation and integration of 110-profile fictional dataset (Phase 7)
 - [x] Accessibility, responsive mobile drawer, and empty/error states (Phase 9)
 - [x] Dual-cloud deployment: Backend on Render + Frontend on Vercel (Phase 9)
+- [x] AI Semantic Relevance Assistant via OpenRouter `nvidia/nemotron-3.5-lightning:free` Top-K Re-ranking (Phase 8)
+
+---
+
+## 🤖 AI Semantic Relevance Assistant (`nvidia/nemotron-3.5-lightning:free`)
+
+Per assignment requirements, an **AI Semantic Relevance Assistant** operates in a privacy-preserving, Top-K re-ranking architecture (Option B):
+1. **Deterministic Gate First:** Dealbreakers, Indian legal marriage ages, and binary constraints are evaluated deterministically.
+2. **Top-K Re-Ranking:** For the top candidates, an anonymized semantic request is dispatched to OpenRouter's free model `nvidia/nemotron-3.5-lightning:free`.
+3. **Data Minimization:** No PII, names, ages, or genders are transmitted. Only anonymized comparisons of Education, Career, Core Values, and Hobbies are evaluated.
+4. **Explainable Uplift:** Evaluates synergy for adjacent qualifications (e.g. Masters $\leftrightarrow$ Doctorate) and complementary professions (e.g. Sales $\leftrightarrow$ Business Owner), displaying a matchmaker insight badge on the candidate card.
+5. **Configuration:** Set `OPENROUTER_API_KEY` in `.env` (or Render environment variables). If unset, the system gracefully falls back to deterministic scoring with zero downtime.
+

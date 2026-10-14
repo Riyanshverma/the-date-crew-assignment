@@ -9,7 +9,8 @@ import {
   ChevronDown,
   ChevronUp,
   MapPin,
-  Briefcase
+  Briefcase,
+  Sparkles
 } from "lucide-react";
 import type {
   RankedCandidate,
@@ -133,6 +134,24 @@ export function CandidateCard({
           </div>
         </div>
       </div>
+
+      {/* AI Semantic Relevance Insight */}
+      {rankedCandidate.aiSemanticInsight && (
+        <div className="mx-5 my-3 p-3 rounded-lg bg-primary-soft/30 border border-primary/20 text-xs text-ink flex items-start gap-2.5">
+          <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-semibold text-primary">✨ AI Semantic Analysis ({rankedCandidate.aiSemanticInsight.model})</span>
+              {rankedCandidate.aiSemanticInsight.enhancedFields.length > 0 && (
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-primary/10 text-primary">
+                  Synergy elevated: {rankedCandidate.aiSemanticInsight.enhancedFields.join(", ")}
+                </span>
+              )}
+            </div>
+            <p className="text-body leading-relaxed">{rankedCandidate.aiSemanticInsight.summary}</p>
+          </div>
+        </div>
+      )}
 
       {/* Comparison Evidence Section */}
       <div className="p-5 bg-surface-soft/20">

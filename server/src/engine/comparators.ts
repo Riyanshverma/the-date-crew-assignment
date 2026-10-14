@@ -9,7 +9,7 @@ import { calculateAge } from "../../../shared/contracts.js";
 
 /**
  * Value map for scoring comparisons:
- * MATCH = 1.0, PARTIAL_MATCH = 0.5, NO_MATCH = 0.0
+ * MATCH = 1.0, PARTIAL_MATCH = 0.6, NO_MATCH = 0.0
  * UNKNOWN and NOT_APPLICABLE are excluded from numerator and denominator.
  */
 export function getComparisonScore(result: ComparisonResult): number | null {
@@ -17,7 +17,7 @@ export function getComparisonScore(result: ComparisonResult): number | null {
     case "MATCH":
       return 1.0;
     case "PARTIAL_MATCH":
-      return 0.5;
+      return 0.7;
     case "NO_MATCH":
       return 0.0;
     case "UNKNOWN":
@@ -369,16 +369,31 @@ export function compareIncome(
   const minVal = min ?? 0;
   const maxVal = max ?? Infinity;
 
+  const formatIncomeLabel = (minV: number | null, maxV: number | null): string => {
+    if (minV !== null && maxV !== null) {
+      return `₹${(minV / 100000).toFixed(0)} L – ₹${(maxV / 100000).toFixed(0)} L/yr`;
+    }
+    if (minV !== null) {
+      return `Min ₹${(minV / 100000).toFixed(0)} L/yr`;
+    }
+    if (maxV !== null) {
+      return `Max ₹${(maxV / 100000).toFixed(0)} L/yr`;
+    }
+    return "Open to any income";
+  };
+
+  const displayPref = formatIncomeLabel(min, max);
+
   if (income >= minVal && income <= maxVal) {
     return {
       field: "income",
       label: "Income Range",
       result: "MATCH",
-      customerValue: `Min ₹${(minVal / 100000).toFixed(0)} L/yr`,
+      customerValue: displayPref,
       candidateValue: `₹${(income / 100000).toFixed(1)} L/yr`,
       direction,
       importance,
-      explanation: `Annual income (₹${(income / 100000).toFixed(1)} L) satisfies preferred criteria.`
+      explanation: `Annual income (₹${(income / 100000).toFixed(1)} L) satisfies preferred range (${displayPref}).`
     };
   }
 
@@ -386,11 +401,11 @@ export function compareIncome(
     field: "income",
     label: "Income Range",
     result: "NO_MATCH",
-    customerValue: `Min ₹${(minVal / 100000).toFixed(0)} L/yr`,
+    customerValue: displayPref,
     candidateValue: `₹${(income / 100000).toFixed(1)} L/yr`,
     direction,
     importance,
-    explanation: `Annual income (₹${(income / 100000).toFixed(1)} L) falls outside preferred range.`
+    explanation: `Annual income (₹${(income / 100000).toFixed(1)} L) falls outside preferred range (${displayPref}).`
   };
 }
 

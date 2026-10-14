@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Sparkles, Send, AlertCircle, X, ShieldAlert } from "lucide-react";
 import type { PersonProfile } from "../../../../shared/contracts";
 import type { DemoMatchmaker } from "@/features/auth/demo-credentials";
-import { createMatch, shareMatchProposal } from "@/lib/api";
+import { createMatch, shareMatchProposal, fetchMatchmakerPitch } from "@/lib/api";
 import { calculateAge } from "../../../../shared/contracts";
 import { Button } from "@/components/ui/button";
 
@@ -31,7 +31,23 @@ export function SendMatchDialog({
     "Demo-only proposal: please review this profile and share whether you would like an introduction."
   );
   const [submitting, setSubmitting] = useState(false);
+  const [generatingPitch, setGeneratingPitch] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleGeneratePitch = async () => {
+    setGeneratingPitch(true);
+    setError(null);
+    try {
+      const pitch = await fetchMatchmakerPitch(customer.id, candidate.id, compatibilityScore);
+      if (pitch) {
+        setMockMessage(pitch);
+      }
+    } catch (err: any) {
+      setError(err?.message || "Failed to generate introduction pitch with AI");
+    } finally {
+      setGeneratingPitch(false);
+    }
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -161,18 +177,32 @@ export function SendMatchDialog({
 
           {/* Message field */}
           <div className="space-y-1.5">
-            <label htmlFor="send-match-message" className="text-xs font-semibold text-ink block">
-              Matchmaker Review Note / Introduction Pitch
-            </label>
+            <div className="flex items-center justify-between gap-2">
+              <label htmlFor="send-match-message" className="text-xs font-semibold text-ink block">
+                Matchmaker Review Note / Introduction Pitch
+              </label>
+              <button
+                type="button"
+                onClick={handleGeneratePitch}
+                disabled={generatingPitch || submitting}
+                className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary bg-primary-soft hover:bg-primary/15 px-2.5 py-1 rounded-md transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <Sparkles className={`w-3.5 h-3.5 ${generatingPitch ? "animate-spin text-primary" : ""}`} />
+                {generatingPitch ? "Drafting Pitch..." : "Draft AI Intro Pitch"}
+              </button>
+            </div>
             <textarea
               id="send-match-message"
-              rows={3}
+              rows={4}
               required
               value={mockMessage}
               onChange={(e) => setMockMessage(e.target.value)}
               placeholder="Add introduction notes or personal pitch for client..."
-              className="w-full rounded-[7px] border border-border-strong bg-surface p-2.5 text-xs text-ink placeholder:text-muted focus-visible:outline-3 focus-visible:outline-primary"
+              className="w-full rounded-[7px] border border-border-strong bg-surface p-2.5 text-xs text-ink placeholder:text-muted focus-visible:outline-3 focus-visible:outline-primary leading-relaxed"
             />
+            <p className="text-[10.5px] text-muted leading-tight">
+              AI drafts a warm 2–3 sentence introduction highlighting shared values and interests. You can edit the text before confirming.
+            </p>
           </div>
 
           {/* Footer Actions */}

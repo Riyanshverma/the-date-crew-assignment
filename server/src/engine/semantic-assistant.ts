@@ -465,3 +465,124 @@ export async function enhanceSingleCandidateWithAI(
   return applySemanticEnhancements(customer, candidate, aiOutput);
 }
 
+/**
+ * Generates an empathetic, personalized matchmaker review note / introduction pitch
+ * using nvidia/nemotron-3.5-lightning:free via OpenRouter.
+ * Bridges client's desired partner preferences with the candidate's actual background.
+ */
+export async function generateMatchmakerIntroductionPitch(
+  customer: CustomerRecord,
+  candidate: CustomerRecord,
+  compatibilityScore: number
+): Promise<string> {
+  const custName = customer.profile.firstName;
+  const candName = candidate.profile.firstName;
+  const candCity = candidate.profile.location?.city || "their city";
+  const candJob =
+    candidate.profile.career?.designation ||
+    candidate.profile.career?.professionCategory ||
+    "their profession";
+  const candEducation =
+    candidate.profile.education?.degree ||
+    candidate.profile.education?.highestEducation ||
+    "";
+  const candHobbies = candidate.profile.lifestyle?.hobbiesInterests?.slice(0, 3).join(", ") || "";
+  const candValues = candidate.profile.relationship?.coreValues?.slice(0, 3).join(", ") || "";
+  const candGoal = candidate.profile.relationship?.relationshipGoal || "";
+
+  // Desired attributes from client's preferences
+  const desiredGoals = customer.preferences?.relationshipGoals?.values?.join(", ") || "";
+  const desiredValues = customer.preferences?.coreValues?.values?.slice(0, 3).join(", ") || "";
+  const desiredProfessions = customer.preferences?.preferredProfessions?.values?.slice(0, 3).join(", ") || "";
+  const desiredHobbies = customer.preferences?.hobbiesInterests?.values?.slice(0, 3).join(", ") || "";
+
+  const apiKey = process.env.OPENROUTER_API_KEY;
+
+  if (apiKey && apiKey !== "your_openrouter_api_key_here" && apiKey.trim() !== "") {
+    try {
+      const prompt = `You are an empathetic, senior matchmaker at "The Date Crew", a premier bespoke matchmaking boutique known for warm, curated, human-led introductions.
+Write a warm, thoughtful 2-to-3 sentence introduction pitch/matchmaker review note for your client ${custName}, presenting candidate ${candName} for their consideration.
+
+Client (${custName})'s Desired Partner Preferences:
+- Looking For: ${desiredGoals || "A meaningful, committed relationship"}
+- Valued Core Qualities: ${desiredValues || "Emotional maturity, mutual respect"}
+- Desired Career/Fields: ${desiredProfessions || "Open to complementary professional paths"}
+- Shared Interests & Hobbies: ${desiredHobbies || "Cultural pursuits, active lifestyle"}
+
+Candidate (${candName})'s Profile:
+- Based in: ${candCity}
+- Career: ${candJob}${candEducation ? ` (${candEducation})` : ""}
+- Core Values: ${candValues || "Growth, authenticity, kindness"}
+- Hobbies & Interests: ${candHobbies || "Arts, travel, exploring good food"}
+- Relationship Intent: ${candGoal || "Long-term partnership"}
+- Overall Compatibility Alignment: ${compatibilityScore}% Fit
+
+Guidelines:
+- Tone: Warm, personal, professional, human-first, and reassuring (matchmaker speaking directly to ${custName}).
+- Connect how ${candName}'s background, personality, values, or interests fulfill what ${custName} is seeking.
+- DO NOT mention "algorithms", "data", "scoring", "percentage", or "AI".
+- Keep it concise: strictly 2 to 3 sentences, ready to be reviewed and sent.
+- Return ONLY the draft pitch text (no markdown formatting, no quotes, no subject line).`;
+
+      const systemMessage = "You are a senior boutique matchmaker writing warm, curated introduction pitches.";
+
+      // Try via OpenRouter SDK
+      try {
+        const openrouter = new OpenRouter({ apiKey });
+        const res = await openrouter.chat.send({
+          chatRequest: {
+            model: MODEL_NAME,
+            messages: [
+              { role: "system", content: systemMessage },
+              { role: "user", content: prompt }
+            ],
+            stream: false,
+            temperature: 0.3
+          }
+        });
+        const content = (res as { choices?: Array<{ message?: { content?: string } }> })?.choices?.[0]?.message?.content;
+        if (content && content.trim().length > 20) {
+          return content.trim().replace(/^["']|["']$/g, "");
+        }
+      } catch (sdkErr) {
+        // Fall back to direct fetch below
+      }
+
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://thedatecrew.com",
+          "X-Title": "TDC Matchmaker Dashboard"
+        },
+        body: JSON.stringify({
+          model: MODEL_NAME,
+          messages: [
+            { role: "system", content: systemMessage },
+            { role: "user", content: prompt }
+          ],
+          temperature: 0.3,
+          stream: false
+        })
+      });
+
+      if (res.ok) {
+        const data = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+        const content = data.choices?.[0]?.message?.content;
+        if (content && content.trim().length > 20) {
+          return content.trim().replace(/^["']|["']$/g, "");
+        }
+      }
+    } catch (err) {
+      console.warn("AI pitch generation failed, using dynamic template:", err);
+    }
+  }
+
+  // Graceful, warm human-first dynamic template incorporating desired & actual traits
+  const valuesClause = candValues ? ` shares your values around ${candValues}, and` : "";
+  const hobbiesClause = candHobbies ? ` enjoys ${candHobbies}` : "is passionate about exploring new experiences";
+  return `Hi ${custName}, I'm delighted to introduce you to ${candName}. Based in ${candCity}, ${candName} works as a ${candJob},${valuesClause} ${hobbiesClause}. With your strong compatibility (${compatibilityScore}% fit) and shared relationship intentions, I believe you two will enjoy a genuine, wonderful conversation.`;
+}
+
+

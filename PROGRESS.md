@@ -1,13 +1,38 @@
 # Progress
 
 ## Current stage
-Phase 9 (Polish, dual-cloud deployment, and submission documentation) completed on branch `master` (Phase 8 AI held per instruction).
+Phase 8 (AI Semantic Assistant & Introduction Pitch Generator) and Phase 9 (Polish, Dual-Cloud Deployment, Accessibility) completed on branch `master`.
+
+---
+
+## Phase 8 AI Semantic Assistant & Introduction Pitch Summary
+- **Work completed:**
+  - **Instant Initial Recommendations (<25ms):** Decoupled heavy LLM analysis from initial matching queue computation. Match recommendations load instantly with deterministic scoring so matchmakers experience zero blocking spinners.
+  - **On-Demand Single Candidate AI Analysis (`POST /api/customers/:id/candidates/:candidateId/ai-analyze`):**
+    - Added matchmaker-invoked `✨ AI Semantic Analysis` button on individual candidate cards.
+    - Evaluates nuanced synergy across education, career, core values, and lifestyle using `nvidia/nemotron-3.5-lightning:free` via OpenRouter SDK with native HTTP fallback.
+    - Re-scores and re-ranks the candidate dynamically, displaying elevated criteria badges, model tag (`nvidia/nemotron-3.5-lightning:free`), boosted compatibility percentage, and a natural language semantic summary.
+  - **AI Introduction Pitch / Matchmaker Review Note Generator (`POST /api/customers/:id/candidates/:candidateId/ai-pitch`):**
+    - Added matchmaker-invoked `✨ Draft AI Intro Pitch` button inside the Send Match Proposal dialog (`SendMatchDialog.tsx`).
+    - Bridges client's desired partner preferences (relationship goals, valued qualities, preferred professions, hobbies) with candidate's actual profile (profession, education, city, hobbies, values, compatibility fit).
+    - Prompts `nvidia/nemotron-3.5-lightning:free` to draft an empathetic, warm, 2-to-3 sentence introduction pitch/review note addressing the client directly in a sophisticated boutique matchmaker tone.
+    - Fills the editable proposal note textarea so the matchmaker retains full human-in-the-loop control to review or refine before confirming.
+    - Robust fallback: If `OPENROUTER_API_KEY` is not configured or fails, dynamically generates a personalized, warm template pitch without crashing.
+  - **Heuristic & Scoring Enhancements:**
+    - Re-calibrated baseline weights to **30% Forward Client Fit** and **10% Reverse Fit** (from 25%/15%) so valid candidate profiles with partial reverse preferences are not unduly suppressed.
+    - Enhanced currency comparison display: Rendered clear range format (e.g., `₹5 L – ₹9 L/yr` instead of misleading `Min ₹5 L/yr`).
+    - Cleaned strict comparator boundaries, delegating semantic proximity in career/education to the LLM assistant.
+- **Commands / checks run:**
+  - `npm run typecheck` — Passed with 0 errors.
+  - `npm run build` — Passed cleanly (client bundle 409 kB gzip 116 kB; server build clean).
+
+---
 
 ## Phase 9 Deployment & Verification Summary
 - **Work completed:**
   - Deployed Backend API to Render Free Tier: `https://the-date-crew-assignment-521e.onrender.com`.
   - Deployed Frontend SPA to Vercel: `https://the-date-crew-assignment-livid.vercel.app/`.
-  - Configured CORS middleware in `server/src/app.ts` reflecting Vercel origins with credentials support.
+  - Configured CORS middleware in `server/src/app.ts` supporting Vercel origins with credentials support.
   - Configured `VITE_API_BASE_URL` in `client/src/lib/api.ts` and `client/src/vite-env.d.ts` for clean environment-based switching between local proxy and live backend.
   - Created `vercel.json` with SPA routing rewrites preventing 404s on deep links.
   - Enhanced accessibility: ARIA modal attributes, `Escape` key event listeners, explicit input label bindings, and live error announcements.
@@ -20,8 +45,9 @@ Phase 9 (Polish, dual-cloud deployment, and submission documentation) completed 
   - Live CORS Preflight: `OPTIONS /api/matches` returned 204 No Content with `access-control-allow-origin: *` and credentials.
   - Live Vercel Bundle: Verified `VITE_API_BASE_URL` baked into production bundle.
   - `npm run typecheck` — Passed with 0 errors.
-  - `npm run build` — Passed cleanly in 1.29s.
-- **Next Phase:** Phase 8 AI feature (when user is ready) or final submission submission email dispatch.
+  - `npm run build` — Passed cleanly.
+
+---
 
 ## Decisions made
 - React + Vite + TypeScript, shadcn/ui, Node + Express + TypeScript, JSON data.
@@ -32,23 +58,27 @@ Phase 9 (Polish, dual-cloud deployment, and submission documentation) completed 
 - Customer-level notes and pairing-specific notes/history are separate.
 - Eligibility is a gate; explicit dealbreakers cannot be offset by score.
 - Preferred/Broader/Reverse/Two-way labels may coexist.
-- Deterministic `mvp-v1` score with separate male/female weights is specified in `ARCHITECTURE.md`.
-- Missing values are unknown, not automatic matches/mismatches.
+- Heuristic scoring uses transparent forward/reverse weighting with separate male/female weights specified in `ARCHITECTURE.md`.
+- Missing values are treated as unknown, not automatic matches/mismatches.
 - Match history prevents duplicate/rejected pairings but unrelated history does not affect score.
 - Send Match creates a mock proposal for customer review; no real email/consent inference.
-- AI/external LLM calls held per user instruction.
+- AI features are matchmaker-invoked tools (on-demand semantic analysis & pitch drafting) that maintain human-in-the-loop oversight.
 - No backend authentication endpoints; credentials checked directly on frontend gate.
 
-## Scoring v1
+---
+
+## Scoring v1 (Heuristic Baseline)
 ### Male-customer
-25% general customer preference fit; 15% reverse general fit; 20% relationship/family planning; 8% younger-age alignment; 7% lower-income alignment; 5% shorter-height alignment; 10% values/priorities; 5% career/education; 5% lifestyle/interests.
+30% general customer preference fit; 10% reverse general fit; 20% relationship/family planning; 8% younger-age alignment; 7% lower-income alignment; 5% shorter-height alignment; 10% values/priorities; 5% career/education; 5% lifestyle/interests.
 
 ### Female-customer
-25% general customer preference fit; 15% reverse general fit; 20% relationship/family planning; 12% professional/career; 10% values/priorities; 8% location/relocation; 5% lifestyle/interests; 5% education.
+30% general customer preference fit; 10% reverse general fit; 20% relationship/family planning; 12% professional/career; 10% values/priorities; 8% location/relocation; 5% lifestyle/interests; 5% education.
 
-Dedicated factors are excluded from general preference-fit buckets to avoid double counting. These are transparent initial heuristics, not scientific measures. Unknown factors are excluded/renormalized with score coverage rather than counted as mismatches.
+Dedicated factors are excluded from general preference-fit buckets to avoid double counting. Unknown factors are excluded/renormalized with score coverage rather than counted as mismatches.
 
-## Not yet implemented
+---
+
+## Implementation Checklist
 - [x] Inspect current repo and align docs with existing code (Phase 0).
 - [x] Establish foundation and runtime (Phase 1).
 - [x] Frontend shell and design tokens (Phase 2).
@@ -60,21 +90,6 @@ Dedicated factors are excluded from general preference-fit buckets to avoid doub
 - [x] Generate fictional profiles, matchmakers, and example pairings (file created).
 - [x] Integrate and validate the existing JSON dataset in the repository (Phase 7).
 - [x] Deployment, responsiveness, accessibility, and documentation (Phase 9).
-- [x] AI Semantic Relevance Assistant & Top-K Re-ranking (Phase 8).
-
-## Phase 8 AI Semantic Relevance Assistant Summary
-- **Work completed:**
-  - Implemented Option B Top-K Re-ranking in `server/src/engine/semantic-assistant.ts`.
-  - Integrated OpenRouter SDK (`@openrouter/sdk`) and native HTTP fallback targeting `nvidia/nemotron-3.5-lightning:free`.
-  - Non-streaming, zero-reasoning, low temperature (0.1) execution for fast, deterministic semantic scoring.
-  - Strict Data Minimization: Sends only anonymized comparison parameters (Education, Career, Core Values, Hobbies); zero PII, names, ages, or genders are transmitted.
-  - Re-ranks the Top 5 candidates, upgrading soft criteria synergy and recomputing compatibility scores with full transparency.
-  - Added frontend AI Semantic Insight cards (`CandidateCard.tsx`) with dynamic badge, model badge, elevated criteria tags, and natural language summary.
-  - Resilient graceful fallback: If `OPENROUTER_API_KEY` is unset or fails, system seamlessly operates on deterministic matching without errors.
-- **Commands / checks run:**
-  - `npm run typecheck` — Passed with 0 errors.
-  - `npm run build` — Built production client and server bundles cleanly.
-
-## Next action
-User to supply OpenRouter API key in `.env` to test live LLM semantic re-ranking, or finalize assignment submission write-up.
+- [x] AI Semantic Relevance Assistant (On-Demand Candidate Analysis) (Phase 8).
+- [x] AI Introduction Pitch / Matchmaker Review Note Generator (Phase 8).
 

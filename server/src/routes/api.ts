@@ -4,7 +4,8 @@ import {
   getCustomerById,
   addCustomerNote,
   getCustomerRecommendations,
-  analyzeCandidateWithAI
+  analyzeCandidateWithAI,
+  getMatchmakerPitch
 } from "../repositories/customer-repository.js";
 import {
   getMatchesByCustomerId,
@@ -122,6 +123,25 @@ apiRouter.post("/customers/:id/candidates/:candidateId/ai-analyze", async (req, 
     res.json(candidate);
   } catch (err: any) {
     res.status(500).json({ error: err?.message || "Failed to analyze candidate with AI" });
+  }
+});
+
+// POST /api/customers/:id/candidates/:candidateId/ai-pitch - On-demand matchmaker intro pitch generation
+apiRouter.post("/customers/:id/candidates/:candidateId/ai-pitch", async (req, res, next) => {
+  try {
+    const { compatibilityScore } = req.body ?? {};
+    const pitch = await getMatchmakerPitch(
+      req.params.id,
+      req.params.candidateId,
+      typeof compatibilityScore === "number" ? compatibilityScore : 75
+    );
+    if (!pitch) {
+      res.status(404).json({ error: "Customer or candidate not found" });
+      return;
+    }
+    res.json({ pitch });
+  } catch (err: any) {
+    res.status(500).json({ error: err?.message || "Failed to generate introduction pitch" });
   }
 });
 

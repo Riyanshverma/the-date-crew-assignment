@@ -88,6 +88,24 @@ export async function analyzeCandidateWithAI(
   return res.json();
 }
 
+export async function fetchMatchmakerPitch(
+  customerId: string,
+  candidateId: string,
+  compatibilityScore: number
+): Promise<string> {
+  const res = await fetch(`${API_BASE}/api/customers/${customerId}/candidates/${candidateId}/ai-pitch`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ compatibilityScore })
+  });
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData?.error || `Failed to generate introduction pitch (status ${res.status})`);
+  }
+  const data = await res.json();
+  return data.pitch;
+}
+
 export async function createMatch(data: {
   customerAId: string;
   customerBId: string;

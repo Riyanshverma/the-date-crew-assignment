@@ -10,7 +10,10 @@ import {
 } from "../../../shared/contracts.js";
 import { readCustomers, readMatches, writeCustomers } from "./storage.js";
 import { runMatchingEngine, scoreCandidate } from "../engine/matching-engine.js";
-import { enhanceSingleCandidateWithAI } from "../engine/semantic-assistant.js";
+import {
+  enhanceSingleCandidateWithAI,
+  generateMatchmakerIntroductionPitch
+} from "../engine/semantic-assistant.js";
 
 export interface CustomerFilter {
   matchmakerId?: string;
@@ -148,6 +151,27 @@ export async function analyzeCandidateWithAI(
 
   // Run AI semantic enhancement on this specified candidate
   return enhanceSingleCandidateWithAI(customer, baseScored);
+}
+
+/**
+ * On-demand matchmaker pitch generation:
+ * Drafts an empathetic, personalized 2-to-3 sentence introduction pitch/review note
+ * based on customer preferences and candidate attributes.
+ */
+export async function getMatchmakerPitch(
+  customerId: string,
+  candidateId: string,
+  compatibilityScore: number
+): Promise<string | null> {
+  const [customers] = await Promise.all([readCustomers()]);
+  const customer = customers.find((c) => c.profile.id === customerId);
+  const candidate = customers.find((c) => c.profile.id === candidateId);
+
+  if (!customer || !candidate) {
+    return null;
+  }
+
+  return generateMatchmakerIntroductionPitch(customer, candidate, compatibilityScore);
 }
 
 

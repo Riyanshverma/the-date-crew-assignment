@@ -55,7 +55,7 @@ flowchart TD
     end
 
     Client -->|HTTPS / JSON REST API| Server
-    SemanticService -->|Anonymized Prompts (Zero PII)| OpenRouterAPI
+    SemanticService -->|Data Minimization Prompts - Zero PII| OpenRouterAPI
 ```
 
 ---
@@ -186,7 +186,7 @@ flowchart TD
         D1 --> D2 --> D3
     end
 
-    Step3 --> Output["Output: RankedCandidate[] sorted by Score Descending"]
+    Step3 --> Output["Output: Ranked Candidates sorted by Score Descending"]
 ```
 
 ### Mathematical Scoring Formulation

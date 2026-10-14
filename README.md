@@ -148,10 +148,10 @@ Matchmakers can independently trigger deep semantic synergy evaluation for any c
 sequenceDiagram
     autonumber
     actor MM as Matchmaker
-    participant UI as CandidateCard.tsx
-    participant API as Express /api/customers/:id/candidates/:candId/ai-analyze
+    participant UI as Candidate Card UI
+    participant API as Express API Server
     participant Mini as Data Minimization Filter
-    participant OR as OpenRouter (nemotron-3.5-lightning:free)
+    participant OR as OpenRouter Nemotron
 
     MM->>UI: Clicks "✨ AI Semantic Analysis"
     UI->>UI: Show spinning loading indicator on card
@@ -173,10 +173,10 @@ When proposing a match to a client, matchmakers can draft a warm, bespoke review
 sequenceDiagram
     autonumber
     actor MM as Matchmaker
-    participant Dialog as SendMatchDialog.tsx
-    participant API as Express /api/customers/:id/candidates/:candId/ai-pitch
+    participant Dialog as Send Match Dialog
+    participant API as Express API Server
     participant Prompt as Context Aggregator
-    participant OR as OpenRouter (nemotron-3.5-lightning:free)
+    participant OR as OpenRouter Nemotron
 
     MM->>Dialog: Clicks "Send Match" on Candidate Card
     Dialog->>Dialog: Opens Proposal Modal with default mock note

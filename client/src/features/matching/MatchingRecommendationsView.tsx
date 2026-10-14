@@ -15,7 +15,7 @@ import type {
   PersonProfile
 } from "../../../../shared/contracts";
 import type { DemoMatchmaker } from "@/features/auth/demo-credentials";
-import { fetchRecommendations, createMatch } from "@/lib/api";
+import { fetchRecommendations, createMatch, analyzeCandidateWithAI } from "@/lib/api";
 import { CandidateCard } from "./CandidateCard";
 import { SendMatchDialog } from "./SendMatchDialog";
 import { CandidateProfileModal } from "./CandidateProfileModal";
@@ -47,6 +47,7 @@ export function MatchingRecommendationsView({
   const [candidateForProfile, setCandidateForProfile] = useState<PersonProfile | null>(null);
   const [candidateForProposal, setCandidateForProposal] = useState<RankedCandidate | null>(null);
   const [shortlistingCandidateId, setShortlistingCandidateId] = useState<string | null>(null);
+  const [analyzingCandidateIds, setAnalyzingCandidateIds] = useState<Set<string>>(new Set());
 
   const loadData = async () => {
     setLoading(true);
@@ -95,6 +96,37 @@ export function MatchingRecommendationsView({
       alert(err?.message || "Failed to shortlist candidate");
     } finally {
       setShortlistingCandidateId(null);
+    }
+  };
+
+  // Handle on-demand AI semantic analysis for a specific candidate
+  const handleAnalyzeCandidateAI = async (candidate: RankedCandidate) => {
+    const candId = candidate.candidate.id;
+    setAnalyzingCandidateIds((prev) => new Set(prev).add(candId));
+    try {
+      const updatedCandidate = await analyzeCandidateWithAI(customer.profile.id, candId);
+      setData((prev) => {
+        if (!prev) return prev;
+        const updatedCandidates = prev.candidates.map((c) =>
+          c.candidate.id === candId ? updatedCandidate : c
+        );
+        // Re-sort candidates by score descending and re-assign 1-indexed ranks
+        const sorted = [...updatedCandidates]
+          .sort((a, b) => b.score - a.score)
+          .map((c, idx) => ({ ...c, rank: idx + 1 }));
+        return {
+          ...prev,
+          candidates: sorted
+        };
+      });
+    } catch (err: any) {
+      alert(err?.message || "Failed to analyze candidate with AI");
+    } finally {
+      setAnalyzingCandidateIds((prev) => {
+        const next = new Set(prev);
+        next.delete(candId);
+        return next;
+      });
     }
   };
 
@@ -200,6 +232,8 @@ export function MatchingRecommendationsView({
                 onViewProfile={() => setCandidateForProfile(candidate.candidate)}
                 onShortlist={() => handleShortlist(candidate)}
                 onSendMatch={() => setCandidateForProposal(candidate)}
+                onAnalyzeAI={() => handleAnalyzeCandidateAI(candidate)}
+                analyzingAI={analyzingCandidateIds.has(candidate.candidate.id)}
                 shortlisting={shortlistingCandidateId === candidate.candidate.id}
               />
             );

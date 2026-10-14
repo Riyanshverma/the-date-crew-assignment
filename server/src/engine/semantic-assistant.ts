@@ -441,3 +441,27 @@ export async function rerankTopCandidatesWithAI(
   const allUpdated = [...enhancedTop, ...remainder];
   return rankCandidates(allUpdated);
 }
+
+/**
+ * On-Demand Matchmaker Analysis for a single specified candidate profile.
+ * Analyzes semantic compatibility with nvidia/nemotron-3.5-lightning:free
+ * and returns the enhanced candidate with boosted score, upgraded preferences, and summary.
+ */
+export async function enhanceSingleCandidateWithAI(
+  customer: CustomerRecord,
+  candidate: RankedCandidate
+): Promise<RankedCandidate> {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+
+  if (!apiKey || apiKey === "your_openrouter_api_key_here" || apiKey.trim() === "") {
+    throw new Error("OpenRouter API key is not configured in .env. Please set OPENROUTER_API_KEY.");
+  }
+
+  const aiOutput = await analyzeCandidateSemantics(customer, candidate, apiKey);
+  if (!aiOutput) {
+    throw new Error("AI analysis did not return a valid semantic evaluation. Please try again.");
+  }
+
+  return applySemanticEnhancements(customer, candidate, aiOutput);
+}
+

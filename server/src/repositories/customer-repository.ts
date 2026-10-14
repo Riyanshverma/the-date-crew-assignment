@@ -5,11 +5,12 @@ import {
   type CustomerRecord,
   type CustomerSummary,
   type MatchStatus,
-  type MatchingRecommendationsResponse
+  type MatchingRecommendationsResponse,
+  type RankedCandidate
 } from "../../../shared/contracts.js";
 import { readCustomers, readMatches, writeCustomers } from "./storage.js";
-import { runMatchingEngine } from "../engine/matching-engine.js";
-import { rerankTopCandidatesWithAI } from "../engine/semantic-assistant.js";
+import { runMatchingEngine, scoreCandidate } from "../engine/matching-engine.js";
+import { enhanceSingleCandidateWithAI } from "../engine/semantic-assistant.js";
 
 export interface CustomerFilter {
   matchmakerId?: string;
@@ -122,18 +123,31 @@ export async function getCustomerRecommendations(
     return null;
   }
 
-  const deterministicResponse = runMatchingEngine(customer, customers, matches);
-
-  // Option B: AI Semantic Relevance Assistant (Top 5 re-ranking)
-  const rerankedCandidates = await rerankTopCandidatesWithAI(
-    customer,
-    deterministicResponse.candidates,
-    5
-  );
-
-  return {
-    ...deterministicResponse,
-    candidates: rerankedCandidates
-  };
+  // Returns deterministic recommendations immediately (<15ms)
+  return runMatchingEngine(customer, customers, matches);
 }
+
+/**
+ * On-demand matchmaker analysis:
+ * Evaluates semantic compatibility for a single candidate profile with nvidia/nemotron-3.5-lightning:free
+ */
+export async function analyzeCandidateWithAI(
+  customerId: string,
+  candidateId: string
+): Promise<RankedCandidate | null> {
+  const [customers] = await Promise.all([readCustomers()]);
+  const customer = customers.find((c) => c.profile.id === customerId);
+  const candidateRecord = customers.find((c) => c.profile.id === candidateId);
+
+  if (!customer || !candidateRecord) {
+    return null;
+  }
+
+  // Baseline scored candidate
+  const baseScored = scoreCandidate(customer, candidateRecord);
+
+  // Run AI semantic enhancement on this specified candidate
+  return enhanceSingleCandidateWithAI(customer, baseScored);
+}
+
 

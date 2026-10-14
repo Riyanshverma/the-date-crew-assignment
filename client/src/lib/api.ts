@@ -3,7 +3,8 @@ import type {
   CustomerRecord,
   CustomerSummary,
   MatchRecord,
-  MatchingRecommendationsResponse
+  MatchingRecommendationsResponse,
+  RankedCandidate
 } from "../../../shared/contracts";
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/+$/, "");
@@ -68,6 +69,21 @@ export async function fetchRecommendations(
     throw new Error(
       `Failed to load matching recommendations for customer '${customerId}' (status ${res.status})`
     );
+  }
+  return res.json();
+}
+
+export async function analyzeCandidateWithAI(
+  customerId: string,
+  candidateId: string
+): Promise<RankedCandidate> {
+  const res = await fetch(`${API_BASE}/api/customers/${customerId}/candidates/${candidateId}/ai-analyze`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" }
+  });
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData?.error || `Failed to analyze candidate with AI (status ${res.status})`);
   }
   return res.json();
 }

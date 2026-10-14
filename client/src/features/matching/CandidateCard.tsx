@@ -28,6 +28,8 @@ interface CandidateCardProps {
   onViewProfile: () => void;
   onShortlist: () => void;
   onSendMatch: () => void;
+  onAnalyzeAI?: () => void;
+  analyzingAI?: boolean;
   shortlisting?: boolean;
 }
 
@@ -39,6 +41,8 @@ export function CandidateCard({
   onViewProfile,
   onShortlist,
   onSendMatch,
+  onAnalyzeAI,
+  analyzingAI,
   shortlisting
 }: CandidateCardProps) {
   const [evidenceTab, setEvidenceTab] = useState<EvidenceTab>("matched");
@@ -134,6 +138,16 @@ export function CandidateCard({
           </div>
         </div>
       </div>
+
+      {/* AI Semantic Analyzing Indicator */}
+      {analyzingAI && (
+        <div className="mx-5 my-3 p-3 rounded-lg bg-primary-soft/40 border border-primary/30 text-xs text-primary flex items-center gap-2.5 animate-pulse">
+          <Sparkles className="w-4 h-4 text-primary animate-spin shrink-0" />
+          <span className="font-medium">
+            Evaluating semantic compatibility with nvidia/nemotron-3.5-lightning:free...
+          </span>
+        </div>
+      )}
 
       {/* AI Semantic Relevance Insight */}
       {rankedCandidate.aiSemanticInsight && (
@@ -295,15 +309,37 @@ export function CandidateCard({
 
       {/* Card Footer Actions */}
       <div className="p-4 bg-surface border-t border-border flex items-center justify-between gap-3">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onViewProfile}
-          className="h-8.5 text-xs"
-        >
-          <Eye className="w-3.5 h-3.5 mr-1.5" />
-          View Profile
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onViewProfile}
+            className="h-8.5 text-xs"
+          >
+            <Eye className="w-3.5 h-3.5 mr-1.5" />
+            View Profile
+          </Button>
+
+          {onAnalyzeAI && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onAnalyzeAI}
+              disabled={analyzingAI}
+              className={`h-8.5 text-xs border-primary/30 text-primary hover:bg-primary-soft/40 transition-all ${
+                rankedCandidate.aiSemanticInsight ? "bg-primary-soft/30 font-medium" : ""
+              }`}
+              title="Run on-demand semantic alignment with nvidia/nemotron-3.5-lightning:free"
+            >
+              <Sparkles className={`w-3.5 h-3.5 mr-1.5 text-primary ${analyzingAI ? "animate-spin" : ""}`} />
+              {analyzingAI
+                ? "Analyzing..."
+                : rankedCandidate.aiSemanticInsight
+                ? "Re-Analyze AI"
+                : "AI Semantic Analysis"}
+            </Button>
+          )}
+        </div>
 
         <div className="flex items-center gap-2">
           <Button

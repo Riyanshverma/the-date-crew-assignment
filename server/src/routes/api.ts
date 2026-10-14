@@ -3,7 +3,8 @@ import {
   getCustomersSummary,
   getCustomerById,
   addCustomerNote,
-  getCustomerRecommendations
+  getCustomerRecommendations,
+  analyzeCandidateWithAI
 } from "../repositories/customer-repository.js";
 import {
   getMatchesByCustomerId,
@@ -107,6 +108,20 @@ apiRouter.get("/customers/:id/recommendations", async (req, res, next) => {
     res.json(recommendations);
   } catch (err) {
     next(err);
+  }
+});
+
+// POST /api/customers/:id/candidates/:candidateId/ai-analyze - On-demand matchmaker AI analysis
+apiRouter.post("/customers/:id/candidates/:candidateId/ai-analyze", async (req, res, next) => {
+  try {
+    const candidate = await analyzeCandidateWithAI(req.params.id, req.params.candidateId);
+    if (!candidate) {
+      res.status(404).json({ error: "Customer or candidate not found" });
+      return;
+    }
+    res.json(candidate);
+  } catch (err: any) {
+    res.status(500).json({ error: err?.message || "Failed to analyze candidate with AI" });
   }
 });
 
